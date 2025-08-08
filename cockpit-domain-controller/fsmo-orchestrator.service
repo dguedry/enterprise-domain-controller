@@ -1,0 +1,26 @@
+[Unit]
+Description=FSMO Role Orchestrator
+Documentation=man:fsmo-orchestrator(8)
+After=samba-ad-dc.service network.target
+Wants=samba-ad-dc.service
+PartOf=samba-ad-dc.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/fsmo-orchestrator.sh --orchestrate
+User=root
+Group=root
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=600
+RemainAfterExit=no
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/etc/chrony /etc/dhcp /etc/samba /var/lib/samba/sysvol /var/run /var/log
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

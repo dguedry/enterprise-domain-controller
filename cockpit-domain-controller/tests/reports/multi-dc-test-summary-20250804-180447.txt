@@ -1,0 +1,48 @@
+Multi-DC Environment Test Summary
+=================================
+Generated: 2025-08-04 18:04:47
+This Server: dc3.guedry.local
+Domain: guedry.local
+Discovered DCs: 0 ()
+
+Instructions for Multi-DC Testing:
+==================================
+1. Run this test suite on all 0 domain controllers
+2. Compare results to identify inconsistencies across DCs
+3. Test failover by stopping services on primary DC
+4. Verify SYSVOL replication between all 0 DCs
+5. Check priority-based coordination during failures
+
+Test Commands for Each DC:
+=========================
+# Run comprehensive tests
+./run-all-tests.sh
+
+# Run specific test suites
+./run-all-tests.sh --suite fsmo
+./run-all-tests.sh --suite coordination
+
+# Quick connectivity test
+./run-all-tests.sh --quick
+
+# Simulate failover (run on secondary DC while primary is stopped)
+./run-all-tests.sh --simulate-failover
+
+Coordination Testing Steps:
+==========================
+1. Verify all DCs can discover each other
+2. Check priority configuration on all DCs
+3. Test seizure coordination by simulating DC failure
+4. Verify service failover works correctly
+5. Check SYSVOL synchronization timing
+
+Expected Results for Healthy Multi-DC Environment:
+===================================================
+- All 0 DCs should discover each other via DNS SRV records
+- FSMO roles should be properly assigned (all 5 roles)
+- Service failover should work within 5-10 minutes
+- SYSVOL should replicate configurations across all 0 DCs
+- Priority-based coordination should prevent conflicts regardless of DC count
+
+Current Test Results from dc3.guedry.local:
+
