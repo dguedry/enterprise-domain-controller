@@ -1,0 +1,8 @@
+Package: cockpit-domain-controller
+Version: 1.0.72-1
+Architecture: all
+Maintainer: Jules <jules@example.com>
+Description: A Cockpit module for managing a Samba Active Directory Domain Controller.
+ Provides a web-based interface for provisioning, managing, and monitoring a DC,
+ with advanced features like automatic FSMO-based service failover.
+Depends: cockpit, samba, krb5-user, chrony, isc-dhcp-server, ufw, python3-samba
