@@ -306,7 +306,7 @@ class DomainController {
                                                 <i class="fas fa-sync" aria-hidden="true"></i>
                                                 ${_("Refresh")}
                                             </button>
-                                            <button id="force-replication" class="pf-v5-c-button pf-m-warning pf-m-small" type="button" title="${_("Force domain replication to resolve FSMO inconsistencies")}">
+                                            <button id="force-replication" class="pf-v5-c-button pf-m-warning pf-m-small" type="button" title="${_("Force a full, immediate replication sync with all domain partners. Use if you suspect replication issues or to speed up propagation of urgent changes.")}">
                                                 <i class="fas fa-exchange-alt" aria-hidden="true"></i>
                                                 ${_("Sync Replication")}
                                             </button>
@@ -3803,33 +3803,6 @@ udp_preference_limit = 0
                 button.disabled = false;
             }, 2000);
         }
-    }
-
-    forceDhcpFailover() {
-        const button = document.getElementById('force-dhcp-failover');
-        const originalText = button.innerHTML;
-        
-        button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Processing...");
-        button.disabled = true;
-        
-        cockpit.spawn(['/usr/local/bin/dhcp-fsmo-manager.sh'], { superuser: "try" })
-            .then(() => {
-                this.showSuccess(_("DHCP failover check completed"));
-                // Refresh all status
-                setTimeout(() => {
-                    this.checkServiceStatus();
-                    this.checkDhcpFsmoStatus();
-                }, 2000);
-            })
-            .catch(error => {
-                this.showError(_("DHCP failover failed: ") + error.message);
-            })
-            .finally(() => {
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 3000);
-            });
     }
 
     refreshDhcpLogs() {

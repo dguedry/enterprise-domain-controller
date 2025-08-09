@@ -60,7 +60,7 @@ fail_test() {
 # Get current FSMO role holders
 get_fsmo_roles() {
     local fsmo_output
-    fsmo_output=$(sudo samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
+    fsmo_output=$(samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
     
     if [ "$fsmo_output" = "FSMO_QUERY_FAILED" ]; then
         echo "ERROR: Failed to query FSMO roles"
@@ -125,7 +125,7 @@ test_fsmo_status_tracking() {
     
     # Initialize SYSVOL if needed
     if [ ! -d "$FSMO_CONFIG_DIR" ]; then
-        sudo /usr/local/bin/fsmo-orchestrator.sh --init
+        /usr/local/bin/fsmo-orchestrator.sh --init
     fi
     
     local status_file="${FSMO_CONFIG_DIR}/fsmo-roles.conf"
@@ -147,9 +147,7 @@ test_fsmo_status_tracking() {
 }
 
 # Test multi-DC discovery
-test_dc_discovery() {
-    start_test "Domain Controller Discovery"
-    
+discover_domain_controllers() {
     local domain_name=$(hostname -d)
     local discovered_dcs=()
     
@@ -167,6 +165,19 @@ test_dc_discovery() {
         fi
     fi
     
+    if [ ${#discovered_dcs[@]} -gt 0 ]; then
+        # Remove duplicates and sort
+        local unique_dcs=($(printf '%s\n' "${discovered_dcs[@]}" | sort -u))
+        printf '%s\n' "${unique_dcs[@]}"
+    fi
+}
+
+test_dc_discovery() {
+    start_test "Domain Controller Discovery"
+
+    local discovered_dcs
+    mapfile -t discovered_dcs < <(discover_domain_controllers)
+
     if [ ${#discovered_dcs[@]} -gt 0 ]; then
         log_info "Discovered DCs: ${discovered_dcs[*]}"
         pass_test "Domain Controller Discovery"
@@ -238,7 +249,7 @@ test_priority_configuration() {
     
     # Initialize priorities if needed
     if [ ! -f "$priorities_file" ]; then
-        sudo /usr/local/bin/fsmo-orchestrator.sh --init
+        /usr/local/bin/fsmo-orchestrator.sh --init
     fi
     
     if [ -f "$priorities_file" ]; then
@@ -267,7 +278,7 @@ test_auto_seizure_config() {
     
     # Initialize auto-seizure config if needed
     if [ ! -f "$seizure_config" ]; then
-        sudo /usr/local/bin/fsmo-orchestrator.sh --init
+        /usr/local/bin/fsmo-orchestrator.sh --init
     fi
     
     if [ -f "$seizure_config" ]; then
@@ -312,10 +323,99 @@ test_systemd_integration() {
     fi
 }
 
+# Test manual FSMO role transfer
+test_fsmo_manual_transfer() {
+    start_test "FSMO Manual Role Transfer"
+
+    local discovered_dcs
+    mapfile -t discovered_dcs < <(discover_domain_controllers)
+
+    if [ ${#discovered_dcs[@]} -lt 2 ]; then
+        log_info "Skipping manual transfer test: requires at least 2 domain controllers."
+        pass_test "FSMO Manual Role Transfer"
+        return 0
+    fi
+
+    log_info "Multiple DCs found, proceeding with manual transfer test."
+
+    local fsmo_info
+    fsmo_info=$(get_fsmo_roles)
+    eval "$fsmo_info"
+
+    local original_pdc_owner="$PDC_OWNER"
+    local this_server="$THIS_SERVER"
+    local target_dc=""
+
+    # Find a target DC that is not the current PDC owner
+    for dc in "${discovered_dcs[@]}"; do
+        if [[ "$dc" != "$original_pdc_owner" ]]; then
+            target_dc=$dc
+            break
+        fi
+    done
+
+    if [ -z "$target_dc" ]; then
+        # If all discovered DCs are the current owner, pick another one if possible
+        for dc in "${discovered_dcs[@]}"; do
+            if [[ "$dc" != "$this_server" ]]; then
+                target_dc=$dc
+                break
+            fi
+        done
+    fi
+
+    if [ -z "$target_dc" ]; then
+        fail_test "FSMO Manual Role Transfer" "Could not find a suitable target DC to transfer role to."
+        return 1
+    fi
+
+    log_info "Attempting to transfer PDC role from '$original_pdc_owner' to '$target_dc'"
+
+    # Transfer the role
+    if samba-tool fsmo transfer --role=pdc -H "$target_dc" --force; then
+        log_info "Transfer command executed successfully. Verifying role change..."
+        sleep 5 # Give a moment for the change to be recognized
+
+        fsmo_info=$(get_fsmo_roles)
+        eval "$fsmo_info"
+        local new_pdc_owner="$PDC_OWNER"
+
+        if [[ "$new_pdc_owner" == "$target_dc" ]]; then
+            log_success "PDC role successfully transferred to '$target_dc'"
+
+            # Transfer the role back to the original owner for cleanup
+            log_info "Transferring PDC role back to '$original_pdc_owner'"
+            if samba-tool fsmo transfer --role=pdc -H "$original_pdc_owner" --force; then
+                log_info "Transfer back command successful. Verifying..."
+                sleep 5
+                fsmo_info=$(get_fsmo_roles)
+                eval "$fsmo_info"
+                if [[ "$PDC_OWNER" == "$original_pdc_owner" ]]; then
+                    log_success "PDC role successfully transferred back to original owner."
+                    pass_test "FSMO Manual Role Transfer"
+                else
+                    fail_test "FSMO Manual Role Transfer" "Failed to transfer role back. Current owner: $PDC_OWNER"
+                fi
+            else
+                fail_test "FSMO Manual Role Transfer" "Failed to execute transfer back command."
+            fi
+        else
+            fail_test "FSMO Manual Role Transfer" "Role owner did not change. Current owner: $new_pdc_owner"
+        fi
+    else
+        fail_test "FSMO Manual Role Transfer" "samba-tool fsmo transfer command failed."
+    fi
+}
+
 # Generate test report
 generate_report() {
-    local report_file="/home/dguedry/Documents/ad-server/cockpit-domain-controller/tests/reports/fsmo-failover-test-$(date +%Y%m%d-%H%M%S).txt"
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local reports_dir="$(cd "$script_dir/../reports" && pwd)"
+    local report_file="$reports_dir/fsmo-failover-test-$(date +%Y%m%d-%H%M%S).txt"
     
+    # Ensure the reports directory exists
+    mkdir -p "$reports_dir"
+
     cat > "$report_file" << EOF
 FSMO Failover Test Report
 Generated: $(date '+%Y-%m-%d %H:%M:%S')
@@ -373,6 +473,7 @@ main() {
     test_priority_configuration
     test_auto_seizure_config
     test_systemd_integration
+    test_fsmo_manual_transfer
     
     # Generate summary
     echo ""
