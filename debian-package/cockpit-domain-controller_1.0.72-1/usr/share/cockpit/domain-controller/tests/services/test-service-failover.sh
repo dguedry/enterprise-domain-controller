@@ -66,26 +66,26 @@ fail_test() {
 get_fsmo_roles() {
     local fsmo_output
     fsmo_output=$(samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
-    
+
     if [ "$fsmo_output" = "FSMO_QUERY_FAILED" ]; then
         return 1
     fi
-    
+
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     # Extract role owners
     local pdc_owner=$(echo "$fsmo_output" | grep -i "PdcRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local rid_owner=$(echo "$fsmo_output" | grep -i "RidAllocationMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local infra_owner=$(echo "$fsmo_output" | grep -i "InfrastructureMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local schema_owner=$(echo "$fsmo_output" | grep -i "SchemaMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local naming_owner=$(echo "$fsmo_output" | grep -i "DomainNamingMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
-    
+
     # Determine if this server is PDC Emulator
     local is_pdc=false
     if echo "$pdc_owner" | grep -qi "$this_server" || echo "$this_server" | grep -qi "$pdc_owner"; then
         is_pdc=true
     fi
-    
+
     echo "THIS_SERVER=$this_server"
     echo "PDC_OWNER=$pdc_owner"
     echo "RID_OWNER=$rid_owner"
@@ -98,7 +98,7 @@ get_fsmo_roles() {
 # Test service status query
 get_service_status() {
     local service="$1"
-    
+
     if systemctl is-active "$service" >/dev/null 2>&1; then
         echo "active"
     elif systemctl is-enabled "$service" >/dev/null 2>&1; then
@@ -111,27 +111,27 @@ get_service_status() {
 # Test DHCP service configuration and status
 test_dhcp_service() {
     start_test "DHCP Service Configuration"
-    
+
     local fsmo_info
     if ! fsmo_info=$(get_fsmo_roles); then
         fail_test "DHCP Service Configuration" "Cannot determine FSMO roles"
         return 1
     fi
-    
+
     eval "$fsmo_info"
-    
+
     # Check DHCP service status
     local dhcp_status=$(get_service_status "isc-dhcp-server")
     log_info "DHCP service status: $dhcp_status"
-    
+
     # Check DHCP configuration exists
     if [ -f "$DHCP_CONFIG" ]; then
         log_info "DHCP configuration file exists: $DHCP_CONFIG"
-        
+
         # Validate basic DHCP configuration
         if grep -q "subnet\|range\|option domain-name" "$DHCP_CONFIG" 2>/dev/null; then
             log_info "DHCP configuration appears valid"
-            
+
             # Check if service status matches PDC role
             if [ "$IS_PDC" = "true" ]; then
                 if [ "$dhcp_status" = "active" ]; then
@@ -165,41 +165,41 @@ test_dhcp_service() {
 # Test NTP/Chrony service configuration
 test_ntp_service() {
     start_test "NTP Service Configuration"
-    
+
     local fsmo_info
     if ! fsmo_info=$(get_fsmo_roles); then
         fail_test "NTP Service Configuration" "Cannot determine FSMO roles"
         return 1
     fi
-    
+
     eval "$fsmo_info"
-    
+
     # Check Chrony service status
     local chrony_status=$(get_service_status "chrony")
     log_info "Chrony service status: $chrony_status"
-    
+
     if [ "$chrony_status" = "active" ]; then
         # Check chrony configuration
         if [ -f "$CHRONY_CONFIG" ]; then
             log_info "Chrony configuration file exists: $CHRONY_CONFIG"
-            
+
             # Check if chrony is properly configured
             if chronyc tracking >/dev/null 2>&1; then
                 local stratum=$(chronyc tracking 2>/dev/null | grep "Stratum" | awk '{print $3}')
                 local offset=$(chronyc tracking 2>/dev/null | grep "Last offset" | awk '{print $4}')
-                
+
                 log_info "Chrony tracking - Stratum: $stratum, Offset: $offset"
-                
+
                 # Check NTP sources
                 local source_count=$(chronyc sources 2>/dev/null | grep -c "^\^" || echo "0")
                 log_info "Chrony has $source_count time sources"
-                
+
                 if [ "$IS_PDC" = "true" ]; then
                     log_info "This server is PDC Emulator - should be authoritative time source"
                 else
                     log_info "This server is not PDC - should sync with PDC or external sources"
                 fi
-                
+
                 pass_test "NTP Service Configuration"
                 return 0
             else
@@ -219,24 +219,24 @@ test_ntp_service() {
 # Test Samba AD-DC service
 test_samba_service() {
     start_test "Samba AD-DC Service"
-    
+
     local samba_status=$(get_service_status "samba-ad-dc")
     log_info "Samba AD-DC service status: $samba_status"
-    
+
     if [ "$samba_status" = "active" ]; then
         # Check Samba configuration
         if [ -f "$SAMBA_CONFIG" ]; then
             log_info "Samba configuration file exists: $SAMBA_CONFIG"
-            
+
             # Validate basic Samba configuration
             if grep -q "server role.*active directory domain controller" "$SAMBA_CONFIG" 2>/dev/null; then
                 log_info "Samba configured as Active Directory Domain Controller"
-                
+
                 # Test basic Samba functionality
                 if samba-tool domain level show >/dev/null 2>&1; then
                     local domain_level=$(samba-tool domain level show 2>/dev/null | grep "Domain function level" | awk '{print $NF}')
                     log_info "Domain functional level: $domain_level"
-                    
+
                     # Test LDAP connectivity
                     if ldapsearch -x -H ldap://localhost -b "" -s base >/dev/null 2>&1; then
                         log_info "LDAP service responding correctly"
@@ -267,24 +267,24 @@ test_samba_service() {
 # Test service orchestration
 test_service_orchestration() {
     start_test "Service Orchestration"
-    
+
     # Test orchestrator execution
     if /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
         log_info "FSMO orchestrator executed successfully"
-        
+
         # Wait a moment for services to settle
         sleep 5
-        
+
         # Re-check service states after orchestration
         local dhcp_status=$(get_service_status "isc-dhcp-server")
         local chrony_status=$(get_service_status "chrony")
         local samba_status=$(get_service_status "samba-ad-dc")
-        
+
         log_info "Post-orchestration service status:"
         log_info "  DHCP: $dhcp_status"
         log_info "  Chrony: $chrony_status"
         log_info "  Samba: $samba_status"
-        
+
         # Check if essential services are running
         if [[ "$chrony_status" == "active" && "$samba_status" == "active" ]]; then
             log_info "Essential services are active after orchestration"
@@ -303,27 +303,27 @@ test_service_orchestration() {
 # Test SYSVOL service configuration storage
 test_sysvol_service_config() {
     start_test "SYSVOL Service Configuration Storage"
-    
+
     # Check if FSMO configuration directory exists
     if [ -d "$FSMO_CONFIG_DIR" ]; then
         log_info "FSMO configuration directory exists: $FSMO_CONFIG_DIR"
-        
+
         # Check for service configuration files
         local config_files=(
             "${FSMO_CONFIG_DIR}/fsmo-services.conf"
             "${FSMO_CONFIG_DIR}/pdc-time-authority.conf"
             "${FSMO_CONFIG_DIR}/password-policy.conf"
         )
-        
+
         local found_configs=0
-        
+
         for config_file in "${config_files[@]}"; do
             if [ -f "$config_file" ]; then
                 ((found_configs++))
                 log_info "Found service config: $(basename "$config_file")"
             fi
         done
-        
+
         if [ $found_configs -gt 0 ]; then
             log_info "Found $found_configs service configuration files in SYSVOL"
             pass_test "SYSVOL Service Configuration Storage"
@@ -349,15 +349,15 @@ test_sysvol_service_config() {
 # Test service dependency management
 test_service_dependencies() {
     start_test "Service Dependencies"
-    
+
     # Check systemd service dependencies
     local samba_deps=$(systemctl list-dependencies samba-ad-dc.service 2>/dev/null | grep -c "●" || echo "0")
     log_info "Samba AD-DC has $samba_deps dependencies"
-    
+
     # Check if orchestration services are properly configured
     local orchestrator_status=$(get_service_status "fsmo-orchestrator.timer")
     log_info "FSMO orchestrator timer status: $orchestrator_status"
-    
+
     if [ "$orchestrator_status" = "active" ]; then
         # Check timer configuration
         if systemctl list-timers fsmo-orchestrator.timer >/dev/null 2>&1; then
@@ -378,23 +378,23 @@ test_service_dependencies() {
 # Test firewall service integration
 test_firewall_integration() {
     start_test "Firewall Integration"
-    
+
     # Check if firewalld is running
     if systemctl is-active firewalld >/dev/null 2>&1; then
         log_info "Firewalld is active"
-        
+
         # Check for essential AD ports
         local essential_ports=("53/tcp" "53/udp" "88/tcp" "88/udp" "389/tcp" "445/tcp" "123/udp")
         local open_ports=0
-        
+
         for port in "${essential_ports[@]}"; do
-            if firewall-cmd --list-ports 2>/dev/null | grep -q "$port" || 
+            if firewall-cmd --list-ports 2>/dev/null | grep -q "$port" ||
                firewall-cmd --list-services 2>/dev/null | grep -qE "(samba|dns|ntp|ldap)"; then
                 ((open_ports++))
                 log_info "Port/service $port is accessible"
             fi
         done
-        
+
         if [ $open_ports -gt 0 ]; then
             log_info "Firewall allows $open_ports essential AD services/ports"
             pass_test "Firewall Integration"
@@ -413,33 +413,33 @@ test_firewall_integration() {
 # Test service failover simulation
 test_failover_simulation() {
     start_test "Service Failover Simulation"
-    
+
     local fsmo_info
     if ! fsmo_info=$(get_fsmo_roles); then
         fail_test "Service Failover Simulation" "Cannot determine FSMO roles"
         return 1
     fi
-    
+
     eval "$fsmo_info"
-    
+
     # Record current service states
     local initial_dhcp_status=$(get_service_status "isc-dhcp-server")
     local initial_chrony_status=$(get_service_status "chrony")
-    
+
     log_info "Initial service states - DHCP: $initial_dhcp_status, Chrony: $initial_chrony_status"
     log_info "This server PDC status: $IS_PDC"
-    
+
     # Simulate orchestration trigger
     if /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
         log_info "Orchestration completed"
-        
+
         # Check final service states
         sleep 3
         local final_dhcp_status=$(get_service_status "isc-dhcp-server")
         local final_chrony_status=$(get_service_status "chrony")
-        
+
         log_info "Final service states - DHCP: $final_dhcp_status, Chrony: $final_chrony_status"
-        
+
         # Validate service states match role expectations
         if [ "$IS_PDC" = "true" ]; then
             if [ "$final_chrony_status" = "active" ]; then
@@ -492,7 +492,7 @@ Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%
 Current FSMO Role Status:
 =========================
 EOF
-    
+
     # Add current FSMO roles to report
     if fsmo_info=$(get_fsmo_roles); then
         eval "$fsmo_info"
@@ -507,7 +507,7 @@ Is PDC Emulator: $IS_PDC
 
 EOF
     fi
-    
+
     # Add current service status
     echo "Current Service Status:" >> "$report_file"
     echo "======================" >> "$report_file"
@@ -517,11 +517,11 @@ EOF
         echo "$service: $status" >> "$report_file"
     done
     echo "" >> "$report_file"
-    
+
     # Add service configuration analysis
     echo "Service Configuration Analysis:" >> "$report_file"
     echo "==============================" >> "$report_file"
-    
+
     if [ -f "$DHCP_CONFIG" ]; then
         echo "DHCP Configuration: Present" >> "$report_file"
         local subnet_count=$(grep -c "subnet" "$DHCP_CONFIG" 2>/dev/null || echo "0")
@@ -529,7 +529,7 @@ EOF
     else
         echo "DHCP Configuration: Missing" >> "$report_file"
     fi
-    
+
     if [ -f "$CHRONY_CONFIG" ]; then
         echo "Chrony Configuration: Present" >> "$report_file"
         local server_count=$(grep -c "^server\|^pool" "$CHRONY_CONFIG" 2>/dev/null || echo "0")
@@ -537,7 +537,7 @@ EOF
     else
         echo "Chrony Configuration: Missing" >> "$report_file"
     fi
-    
+
     if [ -f "$SAMBA_CONFIG" ]; then
         echo "Samba Configuration: Present" >> "$report_file"
         if grep -q "server role.*active directory domain controller" "$SAMBA_CONFIG" 2>/dev/null; then
@@ -549,11 +549,11 @@ EOF
         echo "Samba Configuration: Missing" >> "$report_file"
     fi
     echo "" >> "$report_file"
-    
+
     echo "Detailed Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$TEST_LOG" >> "$report_file"
-    
+
     echo "Service failover test report saved to: $report_file"
     log_info "Service failover test report generated: $report_file"
 }
@@ -563,10 +563,10 @@ main() {
     log_info "Starting Service Failover Testing"
     echo "Service Failover Test Suite"
     echo "============================"
-    
+
     # Initialize test log
     echo "Service Failover Test Log - $(date)" > "$TEST_LOG"
-    
+
     # Run all tests
     test_dhcp_service
     test_ntp_service
@@ -576,7 +576,7 @@ main() {
     test_service_dependencies
     test_firewall_integration
     test_failover_simulation
-    
+
     # Generate summary
     echo ""
     echo "Test Summary:"
@@ -585,10 +585,10 @@ main() {
     echo "Passed: $TESTS_PASSED"
     echo "Failed: $TESTS_FAILED"
     echo "Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%"
-    
+
     # Generate detailed report
     generate_service_report
-    
+
     # Exit with appropriate code
     if [ $TESTS_FAILED -eq 0 ]; then
         log_info "All service failover tests passed successfully"

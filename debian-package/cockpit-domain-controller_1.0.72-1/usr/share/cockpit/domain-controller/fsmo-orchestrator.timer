@@ -1,0 +1,17 @@
+[Unit]
+Description=FSMO Role Orchestrator Timer
+Documentation=man:fsmo-orchestrator(8)
+Requires=fsmo-orchestrator.service
+
+[Timer]
+# Run every 5 minutes for comprehensive FSMO management with auto-seizure
+OnCalendar=*:0/5
+# Run on startup after a delay
+OnBootSec=3min
+# Persistent across reboots
+Persistent=true
+# Randomize start time by up to 60 seconds to prevent conflicts
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

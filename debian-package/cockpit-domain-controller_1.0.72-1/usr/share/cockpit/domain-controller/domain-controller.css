@@ -1,0 +1,1454 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2024 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* PatternFly CSS is loaded automatically by cockpit.js */
+
+/* CSS is loading correctly */
+
+/* Ensure proper scrolling */
+#domain-controller {
+    overflow-y: auto;
+    height: 100vh;
+    padding: var(--pf-v5-global--spacer--md);
+}
+
+/* Domain Controller specific styles */
+.domain-controller-header {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+    padding-bottom: var(--pf-v5-global--spacer--md);
+    border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+/* Domain Status Styling */
+.domain-status-badge {
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+}
+
+.domain-detail-item {
+    padding: var(--pf-v5-global--spacer--sm);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.domain-detail-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.domain-detail-value {
+    font-size: var(--pf-v5-global--FontSize--lg);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+    word-break: break-word;
+}
+
+.domain-no-connection {
+    text-align: center;
+    padding: var(--pf-v5-global--spacer--lg);
+}
+
+.domain-controller-header h1 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--2xl);
+    font-weight: var(--pf-v5-global--FontWeight--normal);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.domain-status-card {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.domain-statistics {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+}
+
+.stat-item {
+    text-align: center;
+    padding: var(--pf-v5-global--spacer--lg);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.stat-item .stat-number {
+    font-size: var(--pf-v5-global--FontSize--3xl);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+    color: var(--pf-v5-global--primary-color--100);
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+    display: block;
+}
+
+.stat-item .stat-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--200);
+    margin: 0;
+}
+
+.domain-actions-card {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.domain-section {
+    margin-bottom: var(--pf-v5-global--spacer--xl);
+}
+
+.domain-section:last-child {
+    margin-bottom: 0;
+}
+
+.domain-section h4 {
+    margin: 0 0 var(--pf-v5-global--spacer--md) 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.domain-form-group {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.domain-form-group label {
+    display: block;
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.domain-button-group {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+    margin-top: var(--pf-v5-global--spacer--md);
+}
+
+.domain-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.domain-loading-content {
+    text-align: center;
+    color: var(--pf-v5-global--Color--light-100);
+}
+
+.domain-loading-content .pf-v5-c-spinner {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.domain-loading-content p {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+}
+
+.domain-details {
+    margin-top: var(--pf-v5-global--spacer--md);
+}
+
+.domain-details .pf-v5-c-description-list {
+    margin-top: var(--pf-v5-global--spacer--sm);
+}
+
+.domain-warning {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+/* Status indicators */
+.domain-status-connected {
+    color: var(--pf-v5-global--success-color--100);
+}
+
+.domain-status-disconnected {
+    color: var(--pf-v5-global--warning-color--100);
+}
+
+.domain-status-error {
+    color: var(--pf-v5-global--danger-color--100);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stat-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .domain-button-group {
+        flex-direction: column;
+    }
+
+    .domain-button-group .pf-v5-c-button {
+        width: 100%;
+        margin-bottom: var(--pf-v5-global--spacer--xs);
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .service-actions {
+        flex-direction: column;
+        gap: var(--pf-v5-global--spacer--xs);
+    }
+
+    .service-actions .pf-v5-c-button {
+        width: 100%;
+    }
+}
+
+/* Dark theme overrides */
+.pf-v5-theme-dark .stat-item {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .domain-controller-header {
+    border-bottom-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .domain-detail-item {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* Domain Actions Row */
+.domain-actions-row {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.network-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.network-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.network-header h5 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.network-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.network-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.network-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.network-value {
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+    font-family: var(--pf-v5-global--FontFamily--monospace);
+    text-align: right;
+}
+
+.ntp-status-text.updating {
+    color: var(--pf-v5-global--info-color--100);
+    border-color: var(--pf-v5-global--info-color--100);
+}
+
+.ntp-status-text.success {
+    color: var(--pf-v5-global--success-color--100);
+    border-color: var(--pf-v5-global--success-color--100);
+}
+
+.ntp-status-text.error {
+    color: var(--pf-v5-global--danger-color--100);
+    border-color: var(--pf-v5-global--danger-color--100);
+}
+
+/* Service Status Section */
+.service-status-section {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.service-header h5 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+
+.services-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--md);
+}
+
+.service-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--sm);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    min-height: auto;
+}
+
+.service-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--xs);
+    width: 100%;
+}
+
+.service-name {
+    display: flex;
+    align-items: center;
+    gap: var(--pf-v5-global--spacer--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+    font-size: var(--pf-v5-global--FontSize--lg);
+    width: 100%;
+}
+
+.service-name i {
+    color: var(--pf-v5-global--primary-color--100);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+}
+
+.service-status-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--pf-v5-global--spacer--md);
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.service-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: var(--pf-v5-global--spacer--xs);
+}
+
+.service-actions .pf-v5-c-button {
+    min-width: 80px;
+    white-space: nowrap;
+}
+
+.fsmo-indicator {
+    margin-left: var(--pf-v5-global--spacer--xs);
+    color: var(--pf-v5-global--warning-color--100);
+    font-size: var(--pf-v5-global--FontSize--sm);
+}
+
+.dhcp-fsmo-status-text {
+    font-size: var(--pf-v5-global--FontSize--xs);
+    color: var(--pf-v5-global--Color--200);
+    margin-top: var(--pf-v5-global--spacer--xs);
+    font-style: italic;
+    line-height: 1.2;
+}
+
+.service-status-text {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--200);
+    padding: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    min-width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.service-status-text.running {
+    color: var(--pf-v5-global--success-color--100);
+    border-color: var(--pf-v5-global--success-color--100);
+}
+
+.service-status-text.stopped {
+    color: var(--pf-v5-global--danger-color--100);
+    border-color: var(--pf-v5-global--danger-color--100);
+}
+
+.service-status-text.checking {
+    color: var(--pf-v5-global--info-color--100);
+    border-color: var(--pf-v5-global--info-color--100);
+}
+
+/* FSMO Roles Section */
+.fsmo-roles-section {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.fsmo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+}
+
+.fsmo-header h5 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.fsmo-explanation {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border-left: 4px solid var(--pf-v5-global--info-color--100);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.fsmo-explanation p {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--100);
+    font-weight: var(--pf-v5-global--FontWeight--normal);
+}
+
+.fsmo-roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+}
+
+.fsmo-role-card {
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border: 2px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    padding: var(--pf-v5-global--spacer--md);
+    transition: box-shadow 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.fsmo-role-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--pf-v5-global--primary-color--100);
+}
+
+.fsmo-role-header {
+    display: flex;
+    align-items: center;
+    gap: var(--pf-v5-global--spacer--sm);
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+}
+
+.fsmo-role-header i {
+    font-size: var(--pf-v5-global--FontSize--lg);
+    color: var(--pf-v5-global--primary-color--100);
+}
+
+.fsmo-role-header h6 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.fsmo-role-holder {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+    color: var(--pf-v5-global--Color--100);
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+    padding: var(--pf-v5-global--spacer--xs);
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.fsmo-role-holder.this-server {
+    background-color: var(--pf-v5-global--primary-color--200);
+    color: var(--pf-v5-global--primary-color--100);
+    border: 1px solid var(--pf-v5-global--primary-color--100);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+}
+
+.fsmo-role-holder.loading {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    color: var(--pf-v5-global--Color--200);
+    border: 1px solid var(--pf-v5-global--BorderColor--200);
+}
+
+.fsmo-role-description {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--100);
+    line-height: 1.4;
+    opacity: 0.8;
+}
+
+.fsmo-role-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+    margin-top: var(--pf-v5-global--spacer--md);
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.fsmo-transfer-btn, .fsmo-seize-btn {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    padding: var(--pf-v5-global--spacer--xs) var(--pf-v5-global--spacer--sm);
+    height: auto;
+    line-height: 1.2;
+}
+
+.fsmo-transfer-btn {
+    --pf-v5-c-button--m-secondary--Color: var(--pf-v5-global--primary-color--100);
+    --pf-v5-c-button--m-secondary--BorderColor: var(--pf-v5-global--primary-color--100);
+}
+
+.fsmo-transfer-btn:hover {
+    --pf-v5-c-button--m-secondary--hover--Color: var(--pf-v5-global--Color--light--100);
+    --pf-v5-c-button--m-secondary--hover--BackgroundColor: var(--pf-v5-global--primary-color--100);
+}
+
+.fsmo-seize-btn {
+    --pf-v5-c-button--m-danger--BorderColor: var(--pf-v5-global--danger-color--100);
+}
+
+.fsmo-role-actions button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fsmo-role-actions button i {
+    margin-right: 0.25rem;
+}
+
+/* Dark theme overrides for actions row */
+.pf-v5-theme-dark .domain-actions-row {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .ntp-status-text {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* Light theme overrides for FSMO section - covers all light theme scenarios */
+.fsmo-role-holder {
+    background-color: #f0f0f0 !important;
+    color: #151515 !important;
+    border-color: #c7c7c7 !important;
+    font-size: 14px !important;
+    min-height: 24px !important;
+}
+
+.fsmo-role-holder.this-server {
+    background-color: #e7f3ff !important;
+    color: #0066cc !important;
+    border-color: #0066cc !important;
+}
+
+.fsmo-role-holder.loading {
+    background-color: #f5f5f5 !important;
+    color: #6a6e73 !important;
+    border-color: #d2d2d2 !important;
+}
+
+/* Additional light theme specific overrides */
+.pf-v5-theme-light .fsmo-role-holder {
+    background-color: #f0f0f0 !important;
+    color: #151515 !important;
+    border-color: #c7c7c7 !important;
+}
+
+.pf-v5-theme-light .fsmo-role-holder.this-server {
+    background-color: #e7f3ff !important;
+    color: #0066cc !important;
+    border-color: #0066cc !important;
+}
+
+.pf-v5-theme-light .fsmo-role-holder.loading {
+    background-color: #f5f5f5 !important;
+    color: #6a6e73 !important;
+    border-color: #d2d2d2 !important;
+}
+
+/* Dark theme overrides for FSMO section */
+.pf-v5-theme-dark .fsmo-roles-section {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .fsmo-role-holder {
+    background-color: var(--pf-v5-global--BackgroundColor--300) !important;
+    color: var(--pf-v5-global--Color--100) !important;
+    border-color: var(--pf-v5-global--BorderColor--100) !important;
+}
+
+.pf-v5-theme-dark .fsmo-role-holder.this-server {
+    background-color: var(--pf-v5-global--primary-color--200) !important;
+    color: var(--pf-v5-global--primary-color--100) !important;
+    border-color: var(--pf-v5-global--primary-color--100) !important;
+}
+
+.pf-v5-theme-dark .fsmo-role-holder.loading {
+    background-color: var(--pf-v5-global--BackgroundColor--300) !important;
+    color: var(--pf-v5-global--Color--200) !important;
+    border-color: var(--pf-v5-global--BorderColor--200) !important;
+}
+
+.pf-v5-theme-dark .fsmo-role-card {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .fsmo-role-card:hover {
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.pf-v5-theme-dark .fsmo-explanation {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+}
+
+/* DHCP Configuration Editor */
+.dhcp-config-editor {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.dhcp-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    padding-bottom: var(--pf-v5-global--spacer--sm);
+    border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.dhcp-editor-header h6 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.dhcp-editor-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.dhcp-editor-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+}
+
+.dhcp-editor-content .pf-v5-c-form__group {
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+}
+
+.dhcp-editor-content .pf-v5-c-form__control {
+    width: 100%;
+}
+
+/* Dark theme overrides for DHCP editor */
+.pf-v5-theme-dark .dhcp-config-editor {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .dhcp-editor-header {
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* NTP Configuration Editor */
+.ntp-config-editor {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.ntp-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    padding-bottom: var(--pf-v5-global--spacer--sm);
+    border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.ntp-editor-header h6 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.ntp-editor-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.ntp-editor-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--pf-v5-global--spacer--md);
+}
+
+.ntp-editor-content .pf-v5-c-form__group {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.ntp-editor-content .pf-v5-c-form__control {
+    width: 100%;
+}
+
+.ntp-editor-content textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Dark theme overrides for NTP editor */
+.pf-v5-theme-dark .ntp-config-editor {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .ntp-editor-header {
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* DHCP Configuration in Provisioning */
+.dhcp-config-options {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding-top: var(--pf-v5-global--spacer--sm);
+    border-top: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.advanced-section-header {
+    margin: var(--pf-v5-global--spacer--md) 0 var(--pf-v5-global--spacer--sm) 0;
+    font-size: var(--pf-v5-global--FontSize--lg);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.pf-v5-c-divider {
+    margin: var(--pf-v5-global--spacer--lg) 0;
+}
+
+/* Dark theme overrides for DHCP provisioning */
+.pf-v5-theme-dark .dhcp-config-options {
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* NTP Management Section */
+.ntp-management-section {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.ntp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.ntp-header h5 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.ntp-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.ntp-info-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.ntp-info-item {
+    padding: var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+}
+
+.ntp-info-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+}
+
+.ntp-info-value {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--100);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+}
+
+.ntp-info-value.success {
+    color: var(--pf-v5-global--success-color--100);
+}
+
+.ntp-info-value.warning {
+    color: var(--pf-v5-global--warning-color--100);
+}
+
+.ntp-info-value.error {
+    color: var(--pf-v5-global--danger-color--100);
+}
+
+.ntp-explanation {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border-left: 4px solid var(--pf-v5-global--info-color--100);
+}
+
+.ntp-explanation h6 {
+    margin: 0 0 var(--pf-v5-global--spacer--sm) 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.ntp-explanation ul {
+    margin: 0;
+    padding-left: var(--pf-v5-global--spacer--lg);
+}
+
+.ntp-explanation li {
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.ntp-status-section {
+    margin-top: var(--pf-v5-global--spacer--lg);
+}
+
+.ntp-status-section h6 {
+    margin: 0 0 var(--pf-v5-global--spacer--sm) 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.ntp-tracking-output {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    padding: var(--pf-v5-global--spacer--sm);
+    font-family: var(--pf-v5-global--FontFamily--monospace);
+    font-size: var(--pf-v5-global--FontSize--sm);
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+}
+
+.ntp-tracking-content {
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+/* DHCP Management Section */
+.dhcp-management-section {
+    margin-top: var(--pf-v5-global--spacer--md);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.dhcp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+.dhcp-header h5 {
+    margin: 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.dhcp-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.dhcp-info-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.dhcp-info-item {
+    padding: var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+}
+
+.dhcp-info-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+}
+
+.dhcp-info-value {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--100);
+    font-weight: var(--pf-v5-global--FontWeight--bold);
+}
+
+.dhcp-explanation {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border-left: 4px solid var(--pf-v5-global--info-color--100);
+}
+
+.dhcp-explanation h6 {
+    margin: 0 0 var(--pf-v5-global--spacer--sm) 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.dhcp-explanation ul {
+    margin: 0;
+    padding-left: var(--pf-v5-global--spacer--lg);
+}
+
+.dhcp-explanation li {
+    margin-bottom: var(--pf-v5-global--spacer--xs);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.dhcp-logs-section {
+    margin-top: var(--pf-v5-global--spacer--lg);
+}
+
+.dhcp-logs-section h6 {
+    margin: 0 0 var(--pf-v5-global--spacer--sm) 0;
+    font-size: var(--pf-v5-global--FontSize--md);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.log-output {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    padding: var(--pf-v5-global--spacer--sm);
+    font-family: var(--pf-v5-global--FontFamily--monospace);
+    font-size: var(--pf-v5-global--FontSize--sm);
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+}
+
+.log-loading {
+    color: var(--pf-v5-global--Color--200);
+    font-style: italic;
+}
+
+/* Dark theme overrides for NTP section */
+.pf-v5-theme-dark .ntp-management-section {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .ntp-info-item {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .ntp-explanation {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+}
+
+.pf-v5-theme-dark .ntp-tracking-output {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* Dark theme overrides for DHCP section */
+.pf-v5-theme-dark .dhcp-management-section {
+    background-color: var(--pf-v5-global--BackgroundColor--300);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .dhcp-info-item {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+.pf-v5-theme-dark .dhcp-explanation {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+}
+
+.pf-v5-theme-dark .log-output {
+    background-color: var(--pf-v5-global--BackgroundColor--400);
+    border-color: var(--pf-v5-global--BorderColor--200);
+}
+
+/* Service Summary Cards */
+.service-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--sm);
+    padding: var(--pf-v5-global--spacer--md);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--pf-v5-global--spacer--xs) 0;
+    border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+}
+
+.summary-value {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+    text-align: right;
+}
+
+.summary-value.success {
+    color: var(--pf-v5-global--success-color--100);
+}
+
+.summary-value.warning {
+    color: var(--pf-v5-global--warning-color--100);
+}
+
+.summary-value.error {
+    color: var(--pf-v5-global--danger-color--100);
+}
+
+/* Hidden elements */
+.hidden {
+    display: none !important;
+}
+
+/* Modular Layout - Keep PatternFly Structure */
+
+/* Tab Content Management */
+.domain-tab-content {
+    display: none;
+}
+
+.domain-tab-content.active {
+    display: block;
+}
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--pf-v5-global--spacer--2xl);
+    min-height: 300px;
+}
+
+.loading-state .pf-v5-c-spinner {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+}
+
+/* Setup Tabs using PatternFly Tabs */
+.setup-mode-selector {
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+/* FSMO Roles Grid - Responsive */
+.fsmo-roles-container {
+    margin-top: var(--pf-v5-global--spacer--md);
+}
+
+.fsmo-role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--pf-v5-global--spacer--md);
+    border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+}
+
+.fsmo-role-item:last-child {
+    border-bottom: none;
+}
+
+.fsmo-role-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-v5-global--spacer--xs);
+}
+
+.fsmo-role-name {
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--100);
+}
+
+.fsmo-role-holder {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--200);
+}
+
+.fsmo-role-holder.this-server {
+    color: var(--pf-v5-global--success-color--100);
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+}
+
+.fsmo-role-actions {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+/* Service Status - Vertical Layout (UPDATED) */
+/* Note: Main service styles are defined earlier in the file */
+
+/* Domain Status Display */
+.domain-status-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--pf-v5-global--spacer--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+}
+
+.status-label {
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+    color: var(--pf-v5-global--Color--200);
+}
+
+.status-value {
+    color: var(--pf-v5-global--Color--100);
+    text-align: right;
+}
+
+/* Close button styling for NTP and DHCP dialogs */
+#close-ntp-management,
+#close-dhcp-management {
+    background-color: transparent !important;
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    color: var(--pf-v5-global--Color--200) !important;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem;
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#close-ntp-management:hover,
+#close-dhcp-management:hover {
+    background-color: var(--pf-v5-global--BackgroundColor--200) !important;
+    border-color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-v5-global--primary-color--100) !important;
+}
+
+/* Ensure PatternFly icons are visible */
+#close-ntp-management .pf-v5-pficon,
+#close-dhcp-management .pf-v5-pficon {
+    font-size: 1rem;
+    display: inline-block;
+    font-weight: normal;
+}
+
+/* Fallback: if PatternFly icons don't load, show × symbol */
+#close-ntp-management .pf-v5-pficon-close:before,
+#close-dhcp-management .pf-v5-pficon-close:before {
+    content: "✕";
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Double fallback: if no icons load at all, add text content */
+#close-ntp-management:empty:after,
+#close-dhcp-management:empty:after {
+    content: "✕";
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Test Suite Styling */
+.test-section {
+    margin-top: var(--pf-v5-global--spacer--lg);
+}
+
+.test-icon {
+    margin-right: var(--pf-v5-global--spacer--sm);
+    color: var(--pf-v5-global--primary-color--100);
+}
+
+.test-description {
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    color: var(--pf-v5-global--Color--200);
+}
+
+.test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--pf-v5-global--spacer--md);
+    margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+.test-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--pf-v5-global--spacer--md);
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--100);
+    transition: all 0.2s ease;
+}
+
+.test-card:hover {
+    border-color: var(--pf-v5-global--primary-color--100);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.test-button {
+    width: 100%;
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pf-v5-global--spacer--sm);
+}
+
+.test-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.test-button.pf-m-progress {
+    position: relative;
+}
+
+.test-button.pf-m-progress::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: var(--pf-v5-global--spacer--sm);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.test-name {
+    font-weight: var(--pf-v5-global--FontWeight--semi-bold);
+}
+
+.test-card .test-description {
+    font-size: var(--pf-v5-global--FontSize--sm);
+    color: var(--pf-v5-global--Color--200);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.test-output-section {
+    margin-top: var(--pf-v5-global--spacer--lg);
+}
+
+.test-controls {
+    display: flex;
+    gap: var(--pf-v5-global--spacer--sm);
+    margin-bottom: var(--pf-v5-global--spacer--md);
+    align-items: center;
+}
+
+.test-output {
+    border: 1px solid var(--pf-v5-global--BorderColor--100);
+    border-radius: var(--pf-v5-global--BorderRadius--sm);
+    background-color: var(--pf-v5-global--BackgroundColor--dark-100);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.test-output pre {
+    margin: 0;
+    padding: var(--pf-v5-global--spacer--md);
+    font-family: var(--pf-v5-global--FontFamily--monospace);
+    font-size: var(--pf-v5-global--FontSize--sm);
+    line-height: 1.4;
+    color: var(--pf-v5-global--Color--light-100);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Test output scrollbar styling */
+.test-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.test-output::-webkit-scrollbar-track {
+    background: var(--pf-v5-global--BackgroundColor--200);
+    border-radius: 4px;
+}
+
+.test-output::-webkit-scrollbar-thumb {
+    background: var(--pf-v5-global--BorderColor--200);
+    border-radius: 4px;
+}
+
+.test-output::-webkit-scrollbar-thumb:hover {
+    background: var(--pf-v5-global--BorderColor--300);
+}
+
+/* Responsive design for test grid */
+@media (max-width: 768px) {
+    .test-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .test-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .test-controls button {
+        width: 100%;
+    }
+}

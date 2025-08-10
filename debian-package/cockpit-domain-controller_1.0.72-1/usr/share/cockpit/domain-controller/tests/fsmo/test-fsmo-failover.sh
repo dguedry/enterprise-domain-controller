@@ -61,21 +61,21 @@ fail_test() {
 get_fsmo_roles() {
     local fsmo_output
     fsmo_output=$(samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
-    
+
     if [ "$fsmo_output" = "FSMO_QUERY_FAILED" ]; then
         echo "ERROR: Failed to query FSMO roles"
         return 1
     fi
-    
+
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     # Extract role owners
     local pdc_owner=$(echo "$fsmo_output" | grep -i "PdcRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local rid_owner=$(echo "$fsmo_output" | grep -i "RidAllocationMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local infra_owner=$(echo "$fsmo_output" | grep -i "InfrastructureMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local schema_owner=$(echo "$fsmo_output" | grep -i "SchemaMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
     local naming_owner=$(echo "$fsmo_output" | grep -i "DomainNamingMasterRole" | sed 's/.*CN=\([^,]*\).*/\1/' | tr '[:upper:]' '[:lower:]' || echo "unknown")
-    
+
     echo "THIS_SERVER=$this_server"
     echo "PDC_OWNER=$pdc_owner"
     echo "RID_OWNER=$rid_owner"
@@ -87,11 +87,11 @@ get_fsmo_roles() {
 # Test FSMO role query functionality
 test_fsmo_query() {
     start_test "FSMO Role Query"
-    
+
     local fsmo_info
     if fsmo_info=$(get_fsmo_roles); then
         eval "$fsmo_info"
-        
+
         if [[ -n "$PDC_OWNER" && -n "$RID_OWNER" && -n "$INFRA_OWNER" && -n "$SCHEMA_OWNER" && -n "$NAMING_OWNER" ]]; then
             log_info "FSMO Roles: PDC=$PDC_OWNER, RID=$RID_OWNER, INFRA=$INFRA_OWNER, SCHEMA=$SCHEMA_OWNER, NAMING=$NAMING_OWNER"
             pass_test "FSMO Role Query"
@@ -109,7 +109,7 @@ test_fsmo_query() {
 # Test FSMO orchestrator functionality
 test_fsmo_orchestrator() {
     start_test "FSMO Orchestrator Execution"
-    
+
     if /usr/local/bin/fsmo-orchestrator.sh --query >/dev/null 2>&1; then
         pass_test "FSMO Orchestrator Execution"
         return 0
@@ -122,14 +122,14 @@ test_fsmo_orchestrator() {
 # Test FSMO status tracking in SYSVOL
 test_fsmo_status_tracking() {
     start_test "FSMO Status Tracking"
-    
+
     # Initialize SYSVOL if needed
     if [ ! -d "$FSMO_CONFIG_DIR" ]; then
         /usr/local/bin/fsmo-orchestrator.sh --init
     fi
-    
+
     local status_file="${FSMO_CONFIG_DIR}/fsmo-roles.conf"
-    
+
     if [ -f "$status_file" ]; then
         local role_count=$(grep -c "^[A-Z].*=" "$status_file" 2>/dev/null || echo "0")
         if [ "$role_count" -ge 5 ]; then
@@ -150,7 +150,7 @@ test_fsmo_status_tracking() {
 discover_domain_controllers() {
     local domain_name=$(hostname -d)
     local discovered_dcs=()
-    
+
     # Try DNS SRV record lookup
     if command -v dig >/dev/null 2>&1; then
         local srv_records
@@ -164,7 +164,7 @@ discover_domain_controllers() {
             done <<< "$srv_records"
         fi
     fi
-    
+
     if [ ${#discovered_dcs[@]} -gt 0 ]; then
         # Remove duplicates and sort
         local unique_dcs=($(printf '%s\n' "${discovered_dcs[@]}" | sort -u))
@@ -191,28 +191,28 @@ test_dc_discovery() {
 # Test connectivity to other DCs
 test_dc_connectivity() {
     start_test "DC Connectivity Testing"
-    
+
     local fsmo_info
     if ! fsmo_info=$(get_fsmo_roles); then
         fail_test "DC Connectivity Testing" "Cannot get FSMO role information"
         return 1
     fi
-    
+
     eval "$fsmo_info"
     local this_server="$THIS_SERVER"
     local reachable_dcs=0
     local total_dcs=0
-    
+
     # Test connectivity to each role holder
     for role_owner in "$PDC_OWNER" "$RID_OWNER" "$INFRA_OWNER" "$SCHEMA_OWNER" "$NAMING_OWNER"; do
         if [[ -n "$role_owner" && "$role_owner" != "unknown" && "$role_owner" != "$this_server" ]]; then
             ((total_dcs++))
-            
+
             # Test ping connectivity
             if ping -c 1 -W 2 "$role_owner" >/dev/null 2>&1; then
                 ((reachable_dcs++))
                 log_info "DC $role_owner is reachable"
-                
+
                 # Test LDAP port
                 if nc -z -w 2 "$role_owner" 389 2>/dev/null; then
                     log_info "DC $role_owner LDAP port is accessible"
@@ -224,7 +224,7 @@ test_dc_connectivity() {
             fi
         fi
     done
-    
+
     if [ $total_dcs -gt 0 ]; then
         log_info "DC Connectivity: $reachable_dcs/$total_dcs DCs reachable"
         if [ $reachable_dcs -gt 0 ]; then
@@ -244,17 +244,17 @@ test_dc_connectivity() {
 # Test priority configuration
 test_priority_configuration() {
     start_test "Priority Configuration"
-    
+
     local priorities_file="${FSMO_CONFIG_DIR}/domain-dc-priorities.conf"
-    
+
     # Initialize priorities if needed
     if [ ! -f "$priorities_file" ]; then
         /usr/local/bin/fsmo-orchestrator.sh --init
     fi
-    
+
     if [ -f "$priorities_file" ]; then
         local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-        
+
         # Check if this server has an entry
         if grep -q "^${this_server}:" "$priorities_file" 2>/dev/null; then
             log_info "Priority configuration found for this server"
@@ -273,25 +273,25 @@ test_priority_configuration() {
 # Test auto-seizure configuration
 test_auto_seizure_config() {
     start_test "Auto-Seizure Configuration"
-    
+
     local seizure_config="${FSMO_CONFIG_DIR}/auto-seize.conf"
-    
+
     # Initialize auto-seizure config if needed
     if [ ! -f "$seizure_config" ]; then
         /usr/local/bin/fsmo-orchestrator.sh --init
     fi
-    
+
     if [ -f "$seizure_config" ]; then
         # Check for required configuration keys
         local required_keys=("AUTO_SEIZE_ENABLED" "SEIZURE_TIMEOUT" "AUTO_SEIZE_ROLES")
         local missing_keys=()
-        
+
         for key in "${required_keys[@]}"; do
             if ! grep -q "^${key}=" "$seizure_config" 2>/dev/null; then
                 missing_keys+=("$key")
             fi
         done
-        
+
         if [ ${#missing_keys[@]} -eq 0 ]; then
             log_info "Auto-seizure configuration complete"
             pass_test "Auto-Seizure Configuration"
@@ -309,10 +309,10 @@ test_auto_seizure_config() {
 # Test orchestration systemd integration
 test_systemd_integration() {
     start_test "SystemD Integration"
-    
+
     local timer_status=$(systemctl is-active fsmo-orchestrator.timer 2>/dev/null || echo "inactive")
     local timer_enabled=$(systemctl is-enabled fsmo-orchestrator.timer 2>/dev/null || echo "disabled")
-    
+
     if [[ "$timer_status" == "active" && "$timer_enabled" == "enabled" ]]; then
         log_info "FSMO orchestrator timer is active and enabled"
         pass_test "SystemD Integration"
@@ -412,7 +412,7 @@ generate_report() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local reports_dir="$(cd "$script_dir/../reports" && pwd)"
     local report_file="$reports_dir/fsmo-failover-test-$(date +%Y%m%d-%H%M%S).txt"
-    
+
     # Ensure the reports directory exists
     mkdir -p "$reports_dir"
 
@@ -432,7 +432,7 @@ Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%
 Current FSMO Role Assignments:
 ==============================
 EOF
-    
+
     # Add current FSMO roles to report
     if fsmo_info=$(get_fsmo_roles); then
         eval "$fsmo_info"
@@ -446,11 +446,11 @@ This Server: $THIS_SERVER
 
 EOF
     fi
-    
+
     echo "Detailed Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$TEST_LOG" >> "$report_file"
-    
+
     echo "Test report saved to: $report_file"
     log_info "Test report generated: $report_file"
 }
@@ -460,10 +460,10 @@ main() {
     log_info "Starting FSMO Failover Testing"
     echo "FSMO Failover Test Suite"
     echo "========================"
-    
+
     # Initialize test log
     echo "FSMO Failover Test Log - $(date)" > "$TEST_LOG"
-    
+
     # Run all tests
     test_fsmo_query
     test_fsmo_orchestrator
@@ -474,7 +474,7 @@ main() {
     test_auto_seizure_config
     test_systemd_integration
     test_fsmo_manual_transfer
-    
+
     # Generate summary
     echo ""
     echo "Test Summary:"
@@ -483,10 +483,10 @@ main() {
     echo "Passed: $TESTS_PASSED"
     echo "Failed: $TESTS_FAILED"
     echo "Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%"
-    
+
     # Generate detailed report
     generate_report
-    
+
     # Exit with appropriate code
     if [ $TESTS_FAILED -eq 0 ]; then
         log_info "All tests passed successfully"
