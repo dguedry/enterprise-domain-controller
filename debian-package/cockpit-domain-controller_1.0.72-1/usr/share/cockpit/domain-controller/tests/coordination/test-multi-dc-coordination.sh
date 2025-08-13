@@ -61,16 +61,14 @@ fail_test() {
 
 # Discover domain controllers using multiple methods
 discover_domain_controllers() {
-
     local domain_name=$(hostname -d)
     if [ -z "$domain_name" ]; then
         domain_name="$DOMAIN_NAME"
     fi
-
     local discovered_dcs=()
-    
+
     log_info "Discovering domain controllers for domain: $domain_name"
-    
+
     # Method 1: DNS SRV record lookup for _ldap._tcp
     if command -v dig >/dev/null 2>&1; then
         local srv_records
@@ -86,7 +84,7 @@ discover_domain_controllers() {
             done <<< "$srv_records"
         fi
     fi
-    
+
     # Method 2: Query AD for domain controllers
     if command -v samba-tool >/dev/null 2>&1; then
         local dc_list
@@ -101,7 +99,7 @@ discover_domain_controllers() {
             done <<< "$dc_list"
         fi
     fi
-    
+
     # Method 3: nslookup fallback
     if [ ${#discovered_dcs[@]} -eq 0 ] && command -v nslookup >/dev/null 2>&1; then
         local ns_output
@@ -115,7 +113,7 @@ discover_domain_controllers() {
             done <<< "$dc_names"
         fi
     fi
-    
+
     # Remove duplicates and sort
     local unique_dcs=($(printf '%s\n' "${discovered_dcs[@]}" | sort -u))
     printf '%s\n' "${unique_dcs[@]}"
@@ -126,26 +124,26 @@ test_dc_connectivity() {
     local dc_host="$1"
     local tests_passed=0
     local total_tests=3
-    
+
     if [ -z "$dc_host" ] || [ "$dc_host" = "unknown" ]; then
         return 1
     fi
-    
+
     # Test 1: Ping
     if ping -c 1 -W 2 "$dc_host" >/dev/null 2>&1; then
         ((tests_passed++))
     fi
-    
+
     # Test 2: Samba port (445)
     if nc -z -w 2 "$dc_host" 445 2>/dev/null; then
         ((tests_passed++))
     fi
-    
+
     # Test 3: LDAP port (389)
     if nc -z -w 2 "$dc_host" 389 2>/dev/null; then
         ((tests_passed++))
     fi
-    
+
     # DC is reachable if majority of tests pass
     [ $tests_passed -ge 2 ]
 }
@@ -153,20 +151,20 @@ test_dc_connectivity() {
 # Test domain controller discovery
 test_dc_discovery() {
     start_test "Domain Controller Discovery"
-    
+
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
-    
+
     if [ ${#discovered_dcs[@]} -gt 0 ]; then
         log_info "Discovered ${#discovered_dcs[@]} domain controllers:"
         for dc in "${discovered_dcs[@]}"; do
             log_info "  - $dc"
         done
-        
+
         # Test connectivity to each discovered DC
         local reachable_count=0
         local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-        
+
         for dc in "${discovered_dcs[@]}"; do
             if [[ "$dc" != "$this_server" ]]; then
                 if test_dc_connectivity "$dc"; then
@@ -179,14 +177,14 @@ test_dc_discovery() {
                 log_info "  🏠 $dc (this server)"
             fi
         done
-        
+
         local remote_dc_count=$((${#discovered_dcs[@]} - 1))
         if [ $remote_dc_count -gt 0 ]; then
             log_info "Connectivity: $reachable_count/$remote_dc_count remote DCs reachable"
         else
             log_info "Single DC environment detected"
         fi
-        
+
         pass_test "Domain Controller Discovery"
         return 0
     else
@@ -198,21 +196,21 @@ test_dc_discovery() {
 # Test priority configuration initialization
 test_priority_initialization() {
     start_test "Priority Configuration Initialization"
-    
+
     # Initialize FSMO orchestrator configuration
     if /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1; then
         if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
             local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-            
+
             # Check if this server has an entry
             if grep -q "^${this_server}:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
                 log_info "Priority configuration initialized with this server entry"
-                
+
                 # Display priority information
                 local priority_line=$(grep "^${this_server}:" "$DOMAIN_PRIORITIES_FILE")
                 local priorities=(${priority_line//:/ })
                 log_info "Server priorities: General=${priorities[1]:-50}, PDC=${priorities[2]:-50}, RID=${priorities[3]:-50}, INFRA=${priorities[4]:-50}, SCHEMA=${priorities[5]:-50}, NAMING=${priorities[6]:-50}"
-                
+
                 pass_test "Priority Configuration Initialization"
                 return 0
             else
@@ -232,30 +230,30 @@ test_priority_initialization() {
 # Test priority calculation consistency
 test_priority_calculation() {
     start_test "Priority Calculation Consistency"
-    
+
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     # Test multiple runs of priority calculation to ensure consistency
     local priorities=()
-    
+
     for i in {1..3}; do
         # Calculate priority based on hostname (same method as orchestrator)
         local hash_priority=$(echo "$this_server" | md5sum | sed 's/[a-f]/5/g' | cut -c1-2)
         local calculated_priority=$((hash_priority % 90 + 10))
         priorities+=("$calculated_priority")
     done
-    
+
     # Check if all calculated priorities are the same
     local first_priority="${priorities[0]}"
     local consistent=true
-    
+
     for priority in "${priorities[@]}"; do
         if [ "$priority" != "$first_priority" ]; then
             consistent=false
             break
         fi
     done
-    
+
     if $consistent; then
         log_info "Priority calculation is consistent: $first_priority"
         pass_test "Priority Calculation Consistency"
@@ -269,23 +267,23 @@ test_priority_calculation() {
 # Test multi-DC priority management
 test_multi_dc_priorities() {
     start_test "Multi-DC Priority Management"
-    
+
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
-    
+
     if [ ${#discovered_dcs[@]} -le 1 ]; then
         log_info "Single DC environment - skipping multi-DC priority test"
         pass_test "Multi-DC Priority Management"
         return 0
     fi
-    
+
     log_info "Testing multi-DC priority management with ${#discovered_dcs[@]} DCs"
-    
+
     # Check if priority file exists and has entries for other DCs
     if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
         local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
         local found_remote_entries=0
-        
+
         for dc in "${discovered_dcs[@]}"; do
             if [[ "$dc" != "$this_server" ]] && grep -q "^${dc}:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
                 ((found_remote_entries++))
@@ -294,7 +292,7 @@ test_multi_dc_priorities() {
                 log_info "Remote DC $dc priorities: General=${priorities[1]:-50}, PDC=${priorities[2]:-50}"
             fi
         done
-        
+
         if [ $found_remote_entries -gt 0 ]; then
             log_info "Found priority entries for $found_remote_entries remote DCs"
             pass_test "Multi-DC Priority Management"
@@ -313,28 +311,28 @@ test_multi_dc_priorities() {
 # Test seizure lock mechanisms
 test_seizure_locks() {
     start_test "Seizure Lock Mechanisms"
-    
+
     local test_role="PDC"
     local lock_file="${SEIZURE_COORDINATION_FILE}.$test_role.lock"
     local this_server=$(hostname -s)
     local current_time=$(date '+%s')
-    
+
     # Test lock creation
     if echo "$this_server:$current_time" > "$lock_file.test" 2>/dev/null; then
         log_info "Successfully created test seizure lock"
-        
+
         # Test lock reading
         if [ -f "$lock_file.test" ]; then
             local lock_info=$(cat "$lock_file.test" 2>/dev/null)
             local lock_server=$(echo "$lock_info" | cut -d: -f1)
             local lock_time=$(echo "$lock_info" | cut -d: -f2)
-            
+
             if [[ "$lock_server" == "$this_server" && "$lock_time" == "$current_time" ]]; then
                 log_info "Seizure lock content verified correctly"
-                
+
                 # Cleanup test lock
                 rm -f "$lock_file.test" 2>/dev/null
-                
+
                 pass_test "Seizure Lock Mechanisms"
                 return 0
             else
@@ -362,22 +360,22 @@ test_seizure_locks() {
 # Test coordination directory structure
 test_coordination_structure() {
     start_test "Coordination Directory Structure"
-    
+
     local required_dirs=(
         "$FSMO_CONFIG_DIR"
     )
-    
+
     local missing_dirs=()
-    
+
     for dir in "${required_dirs[@]}"; do
         if [ ! -d "$dir" ]; then
             missing_dirs+=("$dir")
         fi
     done
-    
+
     if [ ${#missing_dirs[@]} -eq 0 ]; then
         log_info "All coordination directories exist"
-        
+
         # Check permissions
         local fsmo_perms=$(stat -c "%a" "$FSMO_CONFIG_DIR" 2>/dev/null || echo "000")
         if [[ "$fsmo_perms" =~ ^(755|775)$ ]]; then
@@ -397,14 +395,14 @@ test_coordination_structure() {
 # Test orchestrator coordination features
 test_orchestrator_coordination() {
     start_test "Orchestrator Coordination Features"
-    
+
     # Test multi-DC status query
     if /usr/local/bin/fsmo-orchestrator.sh --multi-dc-status >/dev/null 2>&1; then
         log_info "Multi-DC status query successful"
-        
+
         # Test priority-based coordination simulation
         local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-        
+
         # Check if orchestrator can determine priorities
         if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
             if grep -q "^${this_server}:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
@@ -428,22 +426,22 @@ test_orchestrator_coordination() {
 # Test stale entry cleanup
 test_stale_entry_cleanup() {
     start_test "Stale Entry Cleanup"
-    
+
     if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
         # Count current entries
         local current_entries=$(grep -c "^[a-zA-Z0-9].*:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null || echo "0")
         log_info "Current priority entries: $current_entries"
-        
+
         # Create a test stale entry (with old timestamp)
         local test_dc="stale-test-dc-$(date +%s)"
         local old_timestamp="2023-01-01_00:00:00"
-        
+
         if echo "${test_dc}:99:99:99:99:99:99:${old_timestamp}" >> "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
             log_info "Created test stale entry: $test_dc"
-            
+
             # Run orchestrator to trigger cleanup (it should clean entries older than 24h)
             /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
-            
+
             # Check if stale entry was cleaned up
             if ! grep -q "^${test_dc}:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
                 log_info "Stale entry cleanup working correctly"
@@ -452,7 +450,7 @@ test_stale_entry_cleanup() {
             else
                 log_info "Stale entry still present - cleanup may need time"
                 # Remove the test entry manually
-                grep -v "^${test_dc}:" "$DOMAIN_PRIORITIES_FILE" > "${DOMAIN_PRIORITIES_FILE}.tmp" && 
+                grep -v "^${test_dc}:" "$DOMAIN_PRIORITIES_FILE" > "${DOMAIN_PRIORITIES_FILE}.tmp" &&
                 mv "${DOMAIN_PRIORITIES_FILE}.tmp" "$DOMAIN_PRIORITIES_FILE"
                 pass_test "Stale Entry Cleanup"
                 return 0
@@ -471,35 +469,35 @@ test_stale_entry_cleanup() {
 # Test race condition prevention
 test_race_condition_prevention() {
     start_test "Race Condition Prevention"
-    
+
     # Test multiple simultaneous lock attempts (simulated)
     local test_role="INFRASTRUCTURE"
     local lock_file="${SEIZURE_COORDINATION_FILE}.$test_role.lock"
     local this_server=$(hostname -s)
     local lock_timeout=300
-    
+
     # Test 1: Create a lock
     local current_time=$(date '+%s')
-    
+
     if echo "$this_server:$current_time" > "$lock_file.test1" 2>/dev/null; then
         log_info "First lock created successfully"
-        
+
         # Test 2: Try to create another lock (should detect existing lock)
         local second_time=$((current_time + 1))
-        
+
         # Simulate lock conflict detection
         if [ -f "$lock_file.test1" ]; then
             local existing_lock=$(cat "$lock_file.test1" 2>/dev/null)
             local existing_server=$(echo "$existing_lock" | cut -d: -f1)
             local existing_time=$(echo "$existing_lock" | cut -d: -f2)
             local lock_expiry=$((existing_time + lock_timeout))
-            
+
             if [ "$second_time" -lt "$lock_expiry" ]; then
                 log_info "Lock conflict detected correctly - race condition prevented"
-                
+
                 # Cleanup
                 rm -f "$lock_file.test1" 2>/dev/null
-                
+
                 pass_test "Race Condition Prevention"
                 return 0
             else
@@ -542,12 +540,12 @@ Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%
 Domain Environment Analysis:
 ============================
 EOF
-    
+
     # Add discovered DCs
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     echo "Discovered Domain Controllers (${#discovered_dcs[@]}):" >> "$report_file"
-    
+
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
     for dc in "${discovered_dcs[@]}"; do
         if [[ "$dc" == "$this_server" ]]; then
@@ -559,7 +557,7 @@ EOF
         fi
     done
     echo "" >> "$report_file"
-    
+
     # Add priority configuration analysis
     if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
         echo "Priority Configuration Analysis:" >> "$report_file"
@@ -567,7 +565,7 @@ EOF
         local entry_count=$(grep -c "^[a-zA-Z0-9].*:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null || echo "0")
         echo "Total Priority Entries: $entry_count" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         echo "Priority Entries:" >> "$report_file"
         while IFS= read -r line; do
             if [[ ! $line == \#* ]] && [[ -n $line ]]; then
@@ -578,7 +576,7 @@ EOF
         done < "$DOMAIN_PRIORITIES_FILE"
         echo "" >> "$report_file"
     fi
-    
+
     # Add seizure lock analysis
     echo "Seizure Lock Analysis:" >> "$report_file"
     echo "=====================" >> "$report_file"
@@ -599,11 +597,11 @@ EOF
         echo "No active seizure locks found." >> "$report_file"
     fi
     echo "" >> "$report_file"
-    
+
     echo "Detailed Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$TEST_LOG" >> "$report_file"
-    
+
     echo "Multi-DC coordination test report saved to: $report_file"
     log_info "Multi-DC coordination test report generated: $report_file"
 }
@@ -613,10 +611,10 @@ main() {
     log_info "Starting Multi-DC Coordination Testing"
     echo "Multi-DC Coordination Test Suite"
     echo "================================="
-    
+
     # Initialize test log
     echo "Multi-DC Coordination Test Log - $(date)" > "$TEST_LOG"
-    
+
     # Run all tests
     test_dc_discovery
     test_priority_initialization
@@ -627,7 +625,7 @@ main() {
     test_orchestrator_coordination
     test_stale_entry_cleanup
     test_race_condition_prevention
-    
+
     # Generate summary
     echo ""
     echo "Test Summary:"
@@ -636,10 +634,10 @@ main() {
     echo "Passed: $TESTS_PASSED"
     echo "Failed: $TESTS_FAILED"
     echo "Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%"
-    
+
     # Generate detailed report
     generate_coordination_report
-    
+
     # Exit with appropriate code
     if [ $TESTS_FAILED -eq 0 ]; then
         log_info "All multi-DC coordination tests passed successfully"

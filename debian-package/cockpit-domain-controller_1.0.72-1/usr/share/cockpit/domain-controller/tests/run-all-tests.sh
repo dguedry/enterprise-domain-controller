@@ -59,17 +59,17 @@ log_success() {
 # Initialize test environment
 initialize_test_environment() {
     log_info "Initializing comprehensive DC test environment"
-    
+
     # Ensure reports directory exists
     mkdir -p "$REPORTS_DIR"
-    
+
     # Discover all domain controllers
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     local dc_count=${#discovered_dcs[@]}
-    
+
     log_info "Discovered $dc_count domain controllers via DNS: ${discovered_dcs[*]}"
-    
+
     # Initialize master log
     cat > "$MASTER_LOG" << EOF
 Domain Controller Comprehensive Test Suite
@@ -83,14 +83,14 @@ Discovered DCs: $dc_count (${discovered_dcs[*]})
 Environment Information:
 ========================
 EOF
-    
+
     # Add system information
     echo "Hostname: $(hostname -f)" >> "$MASTER_LOG"
     echo "IP Address: $(hostname -I | awk '{print $1}')" >> "$MASTER_LOG"
     echo "OS: $(cat /etc/os-release | grep "PRETTY_NAME" | cut -d'"' -f2)" >> "$MASTER_LOG"
     echo "Kernel: $(uname -r)" >> "$MASTER_LOG"
     echo "Uptime: $(uptime | cut -d',' -f1 | cut -d' ' -f4-)" >> "$MASTER_LOG"
-    
+
     # Add Samba information
     if command -v samba-tool >/dev/null 2>&1; then
         echo "Samba Version: $(samba-tool --version 2>/dev/null || echo 'Unknown')" >> "$MASTER_LOG"
@@ -98,7 +98,7 @@ EOF
             echo "Domain Level: $(samba-tool domain level show 2>/dev/null | grep "Domain function level" | awk '{print $NF}')" >> "$MASTER_LOG"
         fi
     fi
-    
+
     echo "" >> "$MASTER_LOG"
     log_info "Test environment initialized"
 }
@@ -108,17 +108,17 @@ run_test_suite() {
     local suite_name="$1"
     local suite_script="$2"
     local start_time=$(date +%s)
-    
+
     log_info "Starting test suite: $suite_name"
     echo "═══════════════════════════════════════════════"
     echo "Running Test Suite: $(echo "$suite_name" | tr '[:lower:]' '[:upper:]')"
     echo "═══════════════════════════════════════════════"
-    
+
     ((TOTAL_SUITES++))
-    
+
     if [ -x "$suite_script" ]; then
         local suite_log="/tmp/${suite_name}-test-$(date +%s).log"
-        
+
         # Run the test suite
         if $VERBOSE; then
             "$suite_script" --verbose
@@ -127,10 +127,10 @@ run_test_suite() {
             "$suite_script"
             local exit_code=$?
         fi
-        
+
         local end_time=$(date +%s)
         local duration=$((end_time - start_time))
-        
+
         if [ $exit_code -eq 0 ]; then
             log_success "Test suite $suite_name completed successfully (${duration}s)"
             SUITE_RESULTS["$suite_name"]="PASSED:$duration"
@@ -140,41 +140,41 @@ run_test_suite() {
             SUITE_RESULTS["$suite_name"]="FAILED:$duration"
             ((FAILED_SUITES++))
         fi
-        
+
         # Since we are no longer using tee, we can't capture the sub-script's log this way.
         # The sub-scripts create their own logs in /tmp/, which is sufficient for debugging.
-        
+
     else
         log_error "Test suite script not found or not executable: $suite_script"
         SUITE_RESULTS["$suite_name"]="ERROR:0"
         ((FAILED_SUITES++))
     fi
-    
+
     echo ""
 }
 
 # Run test suites in parallel
 run_parallel_tests() {
     log_info "Running test suites in parallel mode"
-    
+
     local pids=()
     local suite_logs=()
-    
+
     # Start all test suites in background
     for suite_name in "${!TEST_SUITES[@]}"; do
         local suite_script="${TEST_SUITES[$suite_name]}"
         local suite_log="/tmp/${suite_name}-parallel-$(date +%s).log"
         suite_logs+=("$suite_name:$suite_log")
-        
+
         if [ -x "$suite_script" ]; then
             log_info "Starting parallel test suite: $suite_name"
-            
+
             if $VERBOSE; then
                 "$suite_script" --verbose > "$suite_log" 2>&1 &
             else
                 "$suite_script" > "$suite_log" 2>&1 &
             fi
-            
+
             pids+=("$!:$suite_name:$suite_log")
         else
             log_error "Test suite script not executable: $suite_script"
@@ -182,23 +182,23 @@ run_parallel_tests() {
             ((FAILED_SUITES++))
         fi
     done
-    
+
     # Wait for all tests to complete and collect results
     for pid_info in "${pids[@]}"; do
         local pid=$(echo "$pid_info" | cut -d: -f1)
         local suite_name=$(echo "$pid_info" | cut -d: -f2)
         local suite_log=$(echo "$pid_info" | cut -d: -f3)
-        
+
         log_info "Waiting for test suite: $suite_name (PID: $pid)"
-        
+
         local start_time=$(date +%s)
         wait "$pid"
         local exit_code=$?
         local end_time=$(date +%s)
         local duration=$((end_time - start_time))
-        
+
         ((TOTAL_SUITES++))
-        
+
         if [ $exit_code -eq 0 ]; then
             log_success "Parallel test suite $suite_name completed successfully (${duration}s)"
             SUITE_RESULTS["$suite_name"]="PASSED:$duration"
@@ -208,14 +208,14 @@ run_parallel_tests() {
             SUITE_RESULTS["$suite_name"]="FAILED:$duration"
             ((FAILED_SUITES++))
         fi
-        
+
         # Append results to master log
         echo "" >> "$MASTER_LOG"
         echo "Parallel Test Suite: $suite_name (Exit Code: $exit_code, Duration: ${duration}s)" >> "$MASTER_LOG"
         echo "================================================================" >> "$MASTER_LOG"
         cat "$suite_log" >> "$MASTER_LOG"
         echo "" >> "$MASTER_LOG"
-        
+
         # Clean up
         rm -f "$suite_log"
     done
@@ -225,13 +225,13 @@ run_parallel_tests() {
 generate_summary_report() {
     local report_file="$REPORTS_DIR/comprehensive-test-summary-$(date +%Y%m%d-%H%M%S).txt"
     local html_report=""
-    
+
     if $GENERATE_HTML; then
         html_report="$REPORTS_DIR/comprehensive-test-summary-$(date +%Y%m%d-%H%M%S).html"
     fi
-    
+
     log_info "Generating comprehensive test summary report"
-    
+
     # Text report
     cat > "$report_file" << EOF
 Domain Controller Comprehensive Test Summary
@@ -250,22 +250,22 @@ Success Rate: $(( PASSED_SUITES * 100 / TOTAL_SUITES ))%
 Test Suite Results:
 ==================
 EOF
-    
+
     # Add individual suite results
     for suite_name in "${!SUITE_RESULTS[@]}"; do
         local result_info="${SUITE_RESULTS[$suite_name]}"
         local status=$(echo "$result_info" | cut -d: -f1)
         local duration=$(echo "$result_info" | cut -d: -f2)
-        
+
         if [ "$status" = "PASSED" ]; then
             echo "✅ $suite_name: PASSED (${duration}s)" >> "$report_file"
         else
             echo "❌ $suite_name: $status (${duration}s)" >> "$report_file"
         fi
     done
-    
+
     echo "" >> "$report_file"
-    
+
     # Add environment analysis
     cat >> "$report_file" << EOF
 Environment Analysis:
@@ -280,25 +280,25 @@ Individual Test Reports:
 =======================
 The following individual test reports were generated:
 EOF
-    
+
     # List individual reports
     find "$REPORTS_DIR" -name "*test-$(date +%Y%m%d)*" -newer "$report_file" 2>/dev/null | while read -r report; do
         echo "- $(basename "$report")" >> "$report_file"
     done
-    
+
     echo "" >> "$report_file"
     echo "Complete Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$MASTER_LOG" >> "$report_file"
-    
+
     log_info "Text report generated: $report_file"
-    
+
     # Generate HTML report if requested
     if $GENERATE_HTML; then
         generate_html_report "$html_report"
         log_info "HTML report generated: $html_report"
     fi
-    
+
     echo "Comprehensive test summary saved to: $report_file"
     if $GENERATE_HTML; then
         echo "HTML report saved to: $html_report"
@@ -320,7 +320,7 @@ $(get_service_status_summary)
 Network Configuration:
   Primary Interface: $(ip route | grep default | awk '{print $5}' | head -1)
   IP Address: $(hostname -I | awk '{print $1}')
-  Domain: $DOMAIN_NAME
+  Domain: $(hostname -d)
 EOF
 }
 
@@ -345,7 +345,7 @@ get_current_fsmo_roles() {
 # Get service status summary
 get_service_status_summary() {
     local services=("samba-ad-dc" "chrony" "isc-dhcp-server" "fsmo-orchestrator.timer")
-    
+
     for service in "${services[@]}"; do
         local status=$(systemctl is-active "$service" 2>/dev/null || echo "inactive")
         echo "  $service: $status"
@@ -354,38 +354,36 @@ get_service_status_summary() {
 
 # Discover domain controllers (simplified version)
 discover_domain_controllers() {
-
     local domain_name=$(hostname -d)
     if [ -z "$domain_name" ]; then
         domain_name="$DOMAIN_NAME"
     fi
-
     local discovered_dcs=()
-    
+
     if command -v dig >/dev/null 2>&1; then
         mapfile -t discovered_dcs < <(dig +short _ldap._tcp."$domain_name" SRV 2>/dev/null | awk '{print $4}' | sed 's/\.$//' | cut -d. -f1 | tr '[:upper:]' '[:lower:]' | sort -u)
     elif command -v nslookup >/dev/null 2>&1; then
         mapfile -t discovered_dcs < <(nslookup -type=SRV _ldap._tcp."$domain_name" 2>/dev/null | grep "service = " | awk '{print $NF}' | sed 's/\.$//' | cut -d. -f1 | tr '[:upper:]' '[:lower:]' | sort -u)
     fi
-    
+
     # Always include current hostname as fallback
     local current_hostname=$(hostname -s | tr '[:upper:]' '[:lower:]')
     if [[ ${#discovered_dcs[@]} -eq 0 || ! " ${discovered_dcs[*]} " =~ " ${current_hostname} " ]]; then
         discovered_dcs+=("$current_hostname")
     fi
-    
+
     printf '%s\n' "${discovered_dcs[@]}" | sort -u
 }
 
 # Generate recommendations based on test results
 generate_recommendations() {
     local recommendations=()
-    
+
     # Check for failed suites and provide recommendations
     for suite_name in "${!SUITE_RESULTS[@]}"; do
         local result_info="${SUITE_RESULTS[$suite_name]}"
         local status=$(echo "$result_info" | cut -d: -f1)
-        
+
         case "$suite_name:$status" in
             "fsmo:FAILED")
                 recommendations+=("- FSMO tests failed: Check FSMO role assignments and orchestration service")
@@ -404,19 +402,19 @@ generate_recommendations() {
                 ;;
         esac
     done
-    
+
     # General recommendations
     if [ $FAILED_SUITES -gt 0 ]; then
         recommendations+=("- Review individual test reports for detailed failure analysis")
         recommendations+=("- Run failed test suites individually with --verbose for more information")
     fi
-    
+
     if [ $PASSED_SUITES -eq $TOTAL_SUITES ]; then
         recommendations+=("- All tests passed! Your domain controller setup appears to be working correctly")
         recommendations+=("- Consider running these tests regularly to monitor DC health")
         recommendations+=("- Test failover capabilities by temporarily stopping services on other DCs")
     fi
-    
+
     # Output recommendations
     if [ ${#recommendations[@]} -gt 0 ]; then
         printf '%s\n' "${recommendations[@]}"
@@ -428,7 +426,7 @@ generate_recommendations() {
 # Generate HTML report
 generate_html_report() {
     local html_file="$1"
-    
+
     cat > "$html_file" << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
@@ -463,7 +461,7 @@ generate_html_report() {
             <p class="timestamp">Generated: $(date '+%Y-%m-%d %H:%M:%S')</p>
             <p>Server: $(hostname -f) | Domain: $DOMAIN_NAME</p>
         </div>
-        
+
         <div class="summary">
             <div class="stat-card">
                 <h3>Total Suites</h3>
@@ -482,17 +480,17 @@ generate_html_report() {
                 <div style="font-size: 2em; font-weight: bold;">$(( PASSED_SUITES * 100 / TOTAL_SUITES ))%</div>
             </div>
         </div>
-        
+
         <div class="test-results">
             <h2>Test Suite Results</h2>
 EOF
-    
+
     # Add test results
     for suite_name in "${!SUITE_RESULTS[@]}"; do
         local result_info="${SUITE_RESULTS[$suite_name]}"
         local status=$(echo "$result_info" | cut -d: -f1)
         local duration=$(echo "$result_info" | cut -d: -f2)
-        
+
         if [ "$status" = "PASSED" ]; then
             cat >> "$html_file" << EOF
             <div class="test-item passed">
@@ -509,10 +507,10 @@ EOF
 EOF
         fi
     done
-    
+
     cat >> "$html_file" << EOF
         </div>
-        
+
         <div class="recommendations">
             <h2>Recommendations</h2>
             <ul>
@@ -531,7 +529,7 @@ create_multi_dc_summary() {
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     local dc_count=${#discovered_dcs[@]}
-    
+
     cat > "$summary_file" << EOF
 Multi-DC Environment Test Summary
 =================================
@@ -582,7 +580,7 @@ Expected Results for Healthy Multi-DC Environment:
 Current Test Results from $(hostname -f):
 $(cat "$report_file" | grep -A 20 "Test Suite Results:")
 EOF
-    
+
     echo "Multi-DC test summary created: $summary_file"
     log_info "Multi-DC test summary generated: $summary_file"
 }
@@ -592,11 +590,11 @@ show_progress() {
     local current=$1
     local total=$2
     local suite_name=$3
-    
+
     local percent=$((current * 100 / total))
     local filled=$((percent / 5))
     local empty=$((20 - filled))
-    
+
     printf "\rProgress: ["
     printf "%*s" $filled | tr ' ' '='
     printf "%*s" $empty | tr ' ' '-'
@@ -606,12 +604,12 @@ show_progress() {
 # Main execution function
 main() {
     local start_time=$(date +%s)
-    
+
     # Discover DCs first for display
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     local dc_count=${#discovered_dcs[@]}
-    
+
     echo "Domain Controller Comprehensive Test Suite"
     echo "=========================================="
     echo "Server: $(hostname -f)"
@@ -619,12 +617,12 @@ main() {
     echo "Discovered DCs: $dc_count (${discovered_dcs[*]})"
     echo "Started: $(date '+%Y-%m-%d %H:%M:%S')"
     echo ""
-    
+
     # Initialize environment
     initialize_test_environment
-    
+
     log_info "Starting test suite execution phase"
-    
+
     # Run test suites
     if $RUN_PARALLEL; then
         run_parallel_tests
@@ -647,10 +645,10 @@ main() {
         done
         log_info "All test suites completed"
     fi
-    
+
     local end_time=$(date +%s)
     local total_duration=$((end_time - start_time))
-    
+
     # Generate final summary
     echo ""
     echo "═══════════════════════════════════════════════"
@@ -662,27 +660,27 @@ main() {
     echo "Success Rate: $(( PASSED_SUITES * 100 / TOTAL_SUITES ))%"
     echo "Total Duration: ${total_duration}s"
     echo ""
-    
+
     # Show individual results
     echo "Individual Results:"
     for suite_name in "${!SUITE_RESULTS[@]}"; do
         local result_info="${SUITE_RESULTS[$suite_name]}"
         local status=$(echo "$result_info" | cut -d: -f1)
         local duration=$(echo "$result_info" | cut -d: -f2)
-        
+
         if [ "$status" = "PASSED" ]; then
             echo "  ✅ $(printf "%-15s" "$suite_name"): PASSED (${duration}s)"
         else
             echo "  ❌ $(printf "%-15s" "$suite_name"): $status (${duration}s)"
         fi
     done
-    
+
     echo ""
-    
+
     # Generate reports
     generate_summary_report
     create_multi_dc_summary
-    
+
     # Final recommendations
     echo "Next Steps:"
     if [ $FAILED_SUITES -eq 0 ]; then
@@ -698,13 +696,13 @@ main() {
         echo "  📞 Check logs and service status for failed components"
         echo "  🔧 Fix issues before proceeding with multi-DC testing"
     fi
-    
+
     echo ""
     echo "Test reports saved in: $REPORTS_DIR"
-    
+
     # The interactive prompts have been removed to allow for non-interactive execution.
     # Reports are still generated in the reports directory.
-    
+
     # Exit with appropriate code
     if [ $FAILED_SUITES -eq 0 ]; then
         log_success "All comprehensive tests completed successfully"

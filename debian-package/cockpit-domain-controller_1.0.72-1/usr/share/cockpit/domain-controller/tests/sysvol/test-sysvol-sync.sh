@@ -65,7 +65,7 @@ discover_domain_controllers() {
         domain_name="$DOMAIN_NAME"
     fi
     local discovered_dcs=()
-    
+
     # Method 1: DNS SRV record lookup
     if command -v dig >/dev/null 2>&1; then
         local srv_records
@@ -79,7 +79,7 @@ discover_domain_controllers() {
             done <<< "$srv_records"
         fi
     fi
-    
+
     # Method 2: nslookup fallback
     if [ ${#discovered_dcs[@]} -eq 0 ] && command -v nslookup >/dev/null 2>&1; then
         local ns_output
@@ -93,7 +93,7 @@ discover_domain_controllers() {
             done <<< "$dc_names"
         fi
     fi
-    
+
     # Remove duplicates and sort
     local unique_dcs=($(printf '%s\n' "${discovered_dcs[@]}" | sort -u))
     printf '%s\n' "${unique_dcs[@]}"
@@ -102,22 +102,22 @@ discover_domain_controllers() {
 # Test SYSVOL structure existence
 test_sysvol_structure() {
     start_test "SYSVOL Structure"
-    
+
     local required_dirs=(
         "$SYSVOL_BASE"
         "$FSMO_CONFIG_DIR"
         "${SYSVOL_BASE}/scripts"
         "${SYSVOL_BASE}/Policies"
     )
-    
+
     local missing_dirs=()
-    
+
     for dir in "${required_dirs[@]}"; do
         if [ ! -d "$dir" ]; then
             missing_dirs+=("$dir")
         fi
     done
-    
+
     if [ ${#missing_dirs[@]} -eq 0 ]; then
         log_info "All required SYSVOL directories exist"
         pass_test "SYSVOL Structure"
@@ -131,13 +131,13 @@ test_sysvol_structure() {
 # Test SYSVOL permissions
 test_sysvol_permissions() {
     start_test "SYSVOL Permissions"
-    
+
     # Check base SYSVOL permissions
     local sysvol_perms=$(stat -c "%a" "$SYSVOL_BASE" 2>/dev/null || echo "000")
-    
+
     if [[ "$sysvol_perms" =~ ^(755|775)$ ]]; then
         log_info "SYSVOL base permissions correct: $sysvol_perms"
-        
+
         # Check FSMO config directory permissions
         if [ -d "$FSMO_CONFIG_DIR" ]; then
             local fsmo_perms=$(stat -c "%a" "$FSMO_CONFIG_DIR" 2>/dev/null || echo "000")
@@ -162,16 +162,16 @@ test_sysvol_permissions() {
 # Test FSMO configuration files in SYSVOL
 test_fsmo_config_files() {
     start_test "FSMO Configuration Files"
-    
+
     local required_files=(
         "${FSMO_CONFIG_DIR}/fsmo-roles.conf"
         "${FSMO_CONFIG_DIR}/fsmo-services.conf"
         "${FSMO_CONFIG_DIR}/domain-dc-priorities.conf"
     )
-    
+
     local missing_files=()
     local existing_files=0
-    
+
     for file in "${required_files[@]}"; do
         if [ -f "$file" ]; then
             ((existing_files++))
@@ -180,7 +180,7 @@ test_fsmo_config_files() {
             missing_files+=("$(basename "$file")")
         fi
     done
-    
+
     if [ $existing_files -ge 2 ]; then
         if [ ${#missing_files[@]} -gt 0 ]; then
             log_info "Most config files exist, missing: ${missing_files[*]}"
@@ -197,12 +197,12 @@ test_fsmo_config_files() {
 create_test_marker() {
     local marker_id="$1"
     local marker_file="${TEST_MARKER_DIR}/test-marker-${marker_id}-$(hostname -s).txt"
-    
+
     # Create test markers directory if it doesn't exist
     if [ ! -d "$TEST_MARKER_DIR" ]; then
         mkdir -p "$TEST_MARKER_DIR" 2>/dev/null || mkdir -p "$TEST_MARKER_DIR"
     fi
-    
+
     # Create marker file with timestamp and server info
     cat > "$marker_file" << EOF
 Test Marker File
@@ -216,7 +216,7 @@ Test Purpose: SYSVOL Synchronization Testing
 This file is used to test SYSVOL replication across domain controllers.
 If you see this file on other DCs, SYSVOL replication is working.
 EOF
-    
+
     log_info "Created test marker: $marker_file"
     echo "$marker_file"
 }
@@ -224,15 +224,15 @@ EOF
 # Check for test markers from other DCs
 check_remote_markers() {
     start_test "Remote DC Markers"
-    
+
     if [ ! -d "$TEST_MARKER_DIR" ]; then
         fail_test "Remote DC Markers" "Test markers directory not found"
         return 1
     fi
-    
+
     local this_server=$(hostname -s)
     local remote_markers=()
-    
+
     # Look for markers from other servers
     while IFS= read -r -d '' marker_file; do
         local marker_name=$(basename "$marker_file")
@@ -240,7 +240,7 @@ check_remote_markers() {
             remote_markers+=("$marker_file")
         fi
     done < <(find "$TEST_MARKER_DIR" -name "test-marker-*.txt" -print0 2>/dev/null)
-    
+
     if [ ${#remote_markers[@]} -gt 0 ]; then
         log_info "Found ${#remote_markers[@]} markers from remote DCs"
         for marker in "${remote_markers[@]}"; do
@@ -260,9 +260,9 @@ check_remote_markers() {
 # Test SYSVOL write access
 test_sysvol_write_access() {
     start_test "SYSVOL Write Access"
-    
+
     local test_file="${SYSVOL_BASE}/write-test-$(date +%s).tmp"
-    
+
     if echo "Write test" > "$test_file" 2>/dev/null; then
         if [ -f "$test_file" ]; then
             rm -f "$test_file" 2>/dev/null
@@ -290,34 +290,34 @@ test_sysvol_write_access() {
 # Test priority configuration synchronization
 test_priority_sync() {
     start_test "Priority Configuration Sync"
-    
+
     local priorities_file="${FSMO_CONFIG_DIR}/domain-dc-priorities.conf"
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     if [ ! -f "$priorities_file" ]; then
         # Initialize priorities
         /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
     fi
-    
+
     if [ -f "$priorities_file" ]; then
         # Check if this server has an entry
         if grep -q "^${this_server}:" "$priorities_file" 2>/dev/null; then
             # Count total DC entries
             local dc_count=$(grep -c "^[a-zA-Z0-9].*:" "$priorities_file" 2>/dev/null || echo "0")
             log_info "Priority config has $dc_count DC entries including this server"
-            
+
             # Check if we have entries for discovered DCs
             local discovered_dcs
             mapfile -t discovered_dcs < <(discover_domain_controllers)
             local found_remote_dcs=0
-            
+
             for dc in "${discovered_dcs[@]}"; do
                 if [[ "$dc" != "$this_server" ]] && grep -q "^${dc}:" "$priorities_file" 2>/dev/null; then
                     ((found_remote_dcs++))
                     log_info "Found priority entry for remote DC: $dc"
                 fi
             done
-            
+
             if [ $found_remote_dcs -gt 0 ] || [ ${#discovered_dcs[@]} -le 1 ]; then
                 pass_test "Priority Configuration Sync"
                 return 0
@@ -338,19 +338,19 @@ test_priority_sync() {
 # Test FSMO status synchronization
 test_fsmo_status_sync() {
     start_test "FSMO Status Sync"
-    
+
     local status_file="${FSMO_CONFIG_DIR}/fsmo-roles.conf"
-    
+
     if [ -f "$status_file" ]; then
         # Check if status file has recent updates
         local last_modified=$(stat -c %Y "$status_file" 2>/dev/null || echo "0")
         local current_time=$(date +%s)
         local age=$((current_time - last_modified))
-        
+
         # Consider file recent if modified within last hour
         if [ $age -lt 3600 ]; then
             log_info "FSMO status file recently updated (${age}s ago)"
-            
+
             # Check if it contains role information
             local role_count=$(grep -c "^[A-Z].*=" "$status_file" 2>/dev/null || echo "0")
             if [ "$role_count" -ge 5 ]; then
@@ -376,30 +376,30 @@ test_fsmo_status_sync() {
 # Test replication latency by creating and monitoring markers
 test_replication_latency() {
     start_test "Replication Latency Test"
-    
+
     local marker_id="latency-$(date +%s)"
     local marker_file
-    
+
     # Create test marker
     if marker_file=$(create_test_marker "$marker_id"); then
         log_info "Created latency test marker: $(basename "$marker_file")"
-        
+
         # Wait a bit for potential replication
         log_info "Waiting 30 seconds for potential replication..."
         sleep 30
-        
+
         # Check if any remote DCs exist to replicate to
         local discovered_dcs
         mapfile -t discovered_dcs < <(discover_domain_controllers)
         local this_server=$(hostname -s)
         local remote_dc_count=0
-        
+
         for dc in "${discovered_dcs[@]}"; do
             if [[ "$dc" != "$this_server" ]]; then
                 ((remote_dc_count++))
             fi
         done
-        
+
         if [ $remote_dc_count -eq 0 ]; then
             log_info "Single DC environment - no replication to test"
             pass_test "Replication Latency Test"
@@ -419,25 +419,25 @@ test_replication_latency() {
 # Test SYSVOL cleanup functionality
 test_sysvol_cleanup() {
     start_test "SYSVOL Cleanup"
-    
+
     # Look for old test markers (older than 1 day)
     local old_markers=()
     local current_time=$(date +%s)
     local one_day=$((24 * 3600))
-    
+
     if [ -d "$TEST_MARKER_DIR" ]; then
         while IFS= read -r -d '' marker_file; do
             local file_time=$(stat -c %Y "$marker_file" 2>/dev/null || echo "0")
             local age=$((current_time - file_time))
-            
+
             if [ $age -gt $one_day ]; then
                 old_markers+=("$marker_file")
             fi
         done < <(find "$TEST_MARKER_DIR" -name "test-marker-*.txt" -print0 2>/dev/null)
-        
+
         if [ ${#old_markers[@]} -gt 0 ]; then
             log_info "Found ${#old_markers[@]} old test markers for cleanup"
-            
+
             # Clean up old markers
             for marker in "${old_markers[@]}"; do
                 if rm -f "$marker" 2>/dev/null; then
@@ -450,7 +450,7 @@ test_sysvol_cleanup() {
     else
         log_info "Test markers directory doesn't exist yet"
     fi
-    
+
     pass_test "SYSVOL Cleanup"
     return 0
 }
@@ -481,20 +481,20 @@ SYSVOL Structure Analysis:
 ==========================
 SYSVOL Base: $SYSVOL_BASE
 EOF
-    
+
     # Add directory analysis
     if [ -d "$SYSVOL_BASE" ]; then
         echo "SYSVOL Base Size: $(du -sh "$SYSVOL_BASE" | cut -f1)" >> "$report_file"
         echo "SYSVOL Permissions: $(stat -c "%a %U:%G" "$SYSVOL_BASE")" >> "$report_file"
         echo "" >> "$report_file"
-        
+
         echo "SYSVOL Contents:" >> "$report_file"
         find "$SYSVOL_BASE" -maxdepth 2 -type d | while read -r dir; do
             echo "  $(basename "$dir"): $(stat -c "%a" "$dir" 2>/dev/null || echo "N/A")" >> "$report_file"
         done
         echo "" >> "$report_file"
     fi
-    
+
     # Add discovered DCs
     echo "Discovered Domain Controllers:" >> "$report_file"
     echo "=============================" >> "$report_file"
@@ -504,14 +504,14 @@ EOF
         echo "  $dc" >> "$report_file"
     done
     echo "" >> "$report_file"
-    
+
     # Add test markers analysis
     if [ -d "$TEST_MARKER_DIR" ]; then
         echo "Test Markers Analysis:" >> "$report_file"
         echo "=====================" >> "$report_file"
         local marker_count=$(find "$TEST_MARKER_DIR" -name "test-marker-*.txt" | wc -l)
         echo "Total Test Markers: $marker_count" >> "$report_file"
-        
+
         if [ $marker_count -gt 0 ]; then
             echo "Marker Details:" >> "$report_file"
             find "$TEST_MARKER_DIR" -name "test-marker-*.txt" | while read -r marker; do
@@ -522,11 +522,11 @@ EOF
         fi
         echo "" >> "$report_file"
     fi
-    
+
     echo "Detailed Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$TEST_LOG" >> "$report_file"
-    
+
     echo "SYSVOL test report saved to: $report_file"
     log_info "SYSVOL test report generated: $report_file"
 }
@@ -536,10 +536,10 @@ main() {
     log_info "Starting SYSVOL Synchronization Testing"
     echo "SYSVOL Synchronization Test Suite"
     echo "=================================="
-    
+
     # Initialize test log
     echo "SYSVOL Synchronization Test Log - $(date)" > "$TEST_LOG"
-    
+
     # Run all tests
     test_sysvol_structure
     test_sysvol_permissions
@@ -550,7 +550,7 @@ main() {
     check_remote_markers
     test_replication_latency
     test_sysvol_cleanup
-    
+
     # Generate summary
     echo ""
     echo "Test Summary:"
@@ -559,10 +559,10 @@ main() {
     echo "Passed: $TESTS_PASSED"
     echo "Failed: $TESTS_FAILED"
     echo "Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%"
-    
+
     # Generate detailed report
     generate_sysvol_report
-    
+
     # Exit with appropriate code
     if [ $TESTS_FAILED -eq 0 ]; then
         log_info "All SYSVOL tests passed successfully"

@@ -34,7 +34,7 @@ class DomainController {
         this.container = null;
         this.loadingOverlay = null;
         this.networkInterfaces = [];
-        
+
         // Track loading states for initial page load
         this.loadingStates = {
             networkInterfaces: false,
@@ -42,7 +42,7 @@ class DomainController {
             hostname: false,
             sysvolManager: false
         };
-        
+
         // Initialize modules
         this.uiManager = new UIManager();
         this.networkManager = new NetworkManager(this.uiManager);
@@ -55,13 +55,13 @@ class DomainController {
     async init() {
         this.container = document.getElementById('domain-controller');
         this.render();
-        
+
         // Show loading spinner until all initial data is ready
         this.showInitialLoading();
-        
+
         // Setup theme listener immediately (doesn't require loading)
         this.setupThemeListener();
-        
+
         // Load all initial data asynchronously
         try {
             await Promise.all([
@@ -75,7 +75,7 @@ class DomainController {
         } finally {
             // Hide loading spinner once all data is loaded
             this.hideInitialLoading();
-            
+
         }
     }
 
@@ -84,7 +84,7 @@ class DomainController {
             <div class="domain-controller-header">
                 <h1>${_("Domain Controller Management")}</h1>
             </div>
-            
+
             <div class="pf-v5-c-card domain-status-card">
                 <div class="pf-v5-c-card__header">
                     <div class="pf-v5-c-card__header-main">
@@ -124,7 +124,7 @@ class DomainController {
                                         <div class="domain-detail-value" id="domain-forest"></div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="domain-actions-row">
                                     <div class="network-info-section">
                                         <div class="network-header">
@@ -146,7 +146,7 @@ class DomainController {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="service-status-section">
                                     <div class="service-header">
                                         <h5>${_("Service Status")}</h5>
@@ -169,7 +169,7 @@ class DomainController {
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="service-item">
                                             <div class="service-info">
                                                 <div class="service-name">
@@ -191,7 +191,7 @@ class DomainController {
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="service-item">
                                             <div class="service-info">
                                                 <div class="service-name">
@@ -223,7 +223,7 @@ class DomainController {
                                 <div class="ntp-management-section hidden" id="ntp-management">
                                     <div class="ntp-header">
                                         <h5>${_("NTP Configuration")}
-                                            <button id="ntp-help-btn" class="pf-v5-c-button pf-m-link pf-m-inline" type="button" 
+                                            <button id="ntp-help-btn" class="pf-v5-c-button pf-m-link pf-m-inline" type="button"
                                                     title="${_("PDC Emulator syncs with external NTP servers (Stratum 10). Other DCs sync with PDC (Stratum 11). Domain clients sync with any DC. Configuration updates automatically when PDC role changes.")}">
                                                 <i class="fas fa-question-circle" aria-hidden="true"></i>
                                             </button>
@@ -242,7 +242,7 @@ class DomainController {
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="service-summary-card">
                                         <div class="summary-item">
                                             <span class="summary-label">${_("Role")}</span>
@@ -262,7 +262,7 @@ class DomainController {
                                 <div class="dhcp-management-section hidden" id="dhcp-management">
                                     <div class="dhcp-header">
                                         <h5>${_("DHCP Configuration")}
-                                            <button id="dhcp-help-btn" class="pf-v5-c-button pf-m-link pf-m-inline" type="button" 
+                                            <button id="dhcp-help-btn" class="pf-v5-c-button pf-m-link pf-m-inline" type="button"
                                                     title="${_("Only the PDC Emulator runs DHCP service. Configuration is stored in SYSVOL for replication. DHCP automatically fails over if PDC role transfers.")}">
                                                 <i class="fas fa-question-circle" aria-hidden="true"></i>
                                             </button>
@@ -281,7 +281,7 @@ class DomainController {
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="service-summary-card">
                                         <div class="summary-item">
                                             <span class="summary-label">${_("Failover Status")}</span>
@@ -297,7 +297,7 @@ class DomainController {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="pf-v5-l-grid__item pf-m-12-col-on-md pf-m-8-col-on-lg pf-m-6-col-on-xl">
                                     <div class="fsmo-roles-section">
                                         <div class="fsmo-header">
@@ -331,7 +331,7 @@ class DomainController {
                                                     </button>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="fsmo-role-card">
                                                 <div class="fsmo-role-header">
                                                     <i class="fas fa-key"></i>
@@ -348,7 +348,7 @@ class DomainController {
                                                     </button>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="fsmo-role-card">
                                                 <div class="fsmo-role-header">
                                                     <i class="fas fa-database"></i>
@@ -365,7 +365,7 @@ class DomainController {
                                                     </button>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="fsmo-role-card">
                                                 <div class="fsmo-role-header">
                                                     <i class="fas fa-sitemap"></i>
@@ -382,7 +382,7 @@ class DomainController {
                                                     </button>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="fsmo-role-card">
                                                 <div class="fsmo-role-header">
                                                     <i class="fas fa-users"></i>
@@ -454,14 +454,14 @@ class DomainController {
                 <div class="pf-v5-c-card__body">
                     <div id="provision-section" class="domain-section">
                         <h4>${_("Provision New Domain")}</h4>
-                        
+
                         <!-- Basic Configuration -->
                         <div class="pf-v5-c-form">
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="domain-name-input">
                                     <span class="pf-v5-c-form__label-text">${_("Domain Name")} *</span>
                                 </label>
-                                <input type="text" id="domain-name-input" class="pf-v5-c-form-control" 
+                                <input type="text" id="domain-name-input" class="pf-v5-c-form-control"
                                        placeholder="example.com" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -471,12 +471,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="provision-hostname">
                                     <span class="pf-v5-c-form__label-text">${_("Server Hostname")} *</span>
                                 </label>
-                                <input type="text" id="provision-hostname" class="pf-v5-c-form-control" 
+                                <input type="text" id="provision-hostname" class="pf-v5-c-form-control"
                                        placeholder="dc1.example.com" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -486,12 +486,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="netbios-name">
                                     <span class="pf-v5-c-form__label-text">${_("NetBIOS Domain Name")}</span>
                                 </label>
-                                <input type="text" id="netbios-name" class="pf-v5-c-form-control" 
+                                <input type="text" id="netbios-name" class="pf-v5-c-form-control"
                                        placeholder="EXAMPLE" maxlength="15">
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -501,12 +501,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="admin-user">
                                     <span class="pf-v5-c-form__label-text">${_("Administrator Username")}</span>
                                 </label>
-                                <input type="text" id="admin-user" class="pf-v5-c-form-control" 
+                                <input type="text" id="admin-user" class="pf-v5-c-form-control"
                                        value="Administrator" placeholder="Administrator">
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -516,7 +516,7 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="admin-password">
                                     <span class="pf-v5-c-form__label-text">${_("Administrator Password")} *</span>
@@ -530,7 +530,7 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="provision-interface">
                                     <span class="pf-v5-c-form__label-text">${_("Network Interface")} *</span>
@@ -539,12 +539,12 @@ class DomainController {
                                     <option value="">${_("Loading interfaces...")}</option>
                                 </select>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="dns-forwarder">
                                     <span class="pf-v5-c-form__label-text">${_("DNS Forwarder")}</span>
                                 </label>
-                                <input type="text" id="dns-forwarder" class="pf-v5-c-form-control" 
+                                <input type="text" id="dns-forwarder" class="pf-v5-c-form-control"
                                        placeholder="8.8.8.8">
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -554,23 +554,23 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="site-name">
                                     <span class="pf-v5-c-form__label-text">${_("Site Name")}</span>
                                 </label>
-                                <input type="text" id="site-name" class="pf-v5-c-form-control" 
+                                <input type="text" id="site-name" class="pf-v5-c-form-control"
                                        placeholder="Default-First-Site-Name">
                             </div>
                         </div>
-                        
+
                         <!-- Advanced Options Accordion -->
                         <div class="pf-v5-c-accordion" id="provision-advanced-accordion">
                             <div class="pf-v5-c-accordion__item">
                                 <h3 class="pf-v5-c-accordion__toggle">
-                                    <button class="pf-v5-c-accordion__toggle-button" 
-                                            id="provision-advanced-toggle" 
-                                            aria-expanded="false" 
+                                    <button class="pf-v5-c-accordion__toggle-button"
+                                            id="provision-advanced-toggle"
+                                            aria-expanded="false"
                                             aria-controls="provision-advanced-content">
                                         <span class="pf-v5-c-accordion__toggle-icon">
                                             <i class="fas fa-angle-right" aria-hidden="true"></i>
@@ -578,8 +578,8 @@ class DomainController {
                                         <span class="pf-v5-c-accordion__toggle-text">${_("Advanced Options")}</span>
                                     </button>
                                 </h3>
-                                <div class="pf-v5-c-accordion__expandable-content" 
-                                     id="provision-advanced-content" 
+                                <div class="pf-v5-c-accordion__expandable-content"
+                                     id="provision-advanced-content"
                                      hidden>
                                     <div class="pf-v5-c-accordion__expandable-content-body">
                                         <div class="pf-v5-c-form">
@@ -601,7 +601,7 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <label class="pf-v5-c-form__label" for="forest-level">
                                                     <span class="pf-v5-c-form__label-text">${_("Forest Functional Level")}</span>
@@ -620,7 +620,7 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <div class="pf-v5-c-check">
                                                     <input class="pf-v5-c-check__input" type="checkbox" id="use-rfc2307" checked>
@@ -636,7 +636,7 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <div class="pf-v5-c-check">
                                                     <input class="pf-v5-c-check__input" type="checkbox" id="use-xattrs">
@@ -652,12 +652,12 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <label class="pf-v5-c-form__label" for="ntp-servers">
                                                     <span class="pf-v5-c-form__label-text">${_("NTP Servers")}</span>
                                                 </label>
-                                                <input type="text" id="ntp-servers" class="pf-v5-c-form-control" 
+                                                <input type="text" id="ntp-servers" class="pf-v5-c-form-control"
                                                        value="time.cloudflare.com,time.google.com,pool.ntp.org,time.nist.gov"
                                                        placeholder="server1,server2,server3">
                                                 <div class="pf-v5-c-form__helper-text">
@@ -670,9 +670,9 @@ class DomainController {
                                             </div>
 
                                             <hr class="pf-v5-c-divider">
-                                            
+
                                             <h6 class="advanced-section-header">${_("DHCP Configuration")}</h6>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <div class="pf-v5-c-check">
                                                     <input class="pf-v5-c-check__input" type="checkbox" id="enable-dhcp" checked>
@@ -688,13 +688,13 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="dhcp-config-options" id="dhcp-provision-options">
                                                 <div class="pf-v5-c-form__group">
                                                     <label class="pf-v5-c-form__label" for="dhcp-range-start">
                                                         <span class="pf-v5-c-form__label-text">${_("DHCP Range Start")}</span>
                                                     </label>
-                                                    <input type="text" id="dhcp-provision-range-start" class="pf-v5-c-form-control" 
+                                                    <input type="text" id="dhcp-provision-range-start" class="pf-v5-c-form-control"
                                                            placeholder="192.168.1.100">
                                                     <div class="pf-v5-c-form__helper-text">
                                                         <div class="pf-v5-c-helper-text">
@@ -704,12 +704,12 @@ class DomainController {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="pf-v5-c-form__group">
                                                     <label class="pf-v5-c-form__label" for="dhcp-provision-range-end">
                                                         <span class="pf-v5-c-form__label-text">${_("DHCP Range End")}</span>
                                                     </label>
-                                                    <input type="text" id="dhcp-provision-range-end" class="pf-v5-c-form-control" 
+                                                    <input type="text" id="dhcp-provision-range-end" class="pf-v5-c-form-control"
                                                            placeholder="192.168.1.200">
                                                     <div class="pf-v5-c-form__helper-text">
                                                         <div class="pf-v5-c-helper-text">
@@ -719,12 +719,12 @@ class DomainController {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="pf-v5-c-form__group">
                                                     <label class="pf-v5-c-form__label" for="dhcp-provision-lease-time">
                                                         <span class="pf-v5-c-form__label-text">${_("Lease Time (seconds)")}</span>
                                                     </label>
-                                                    <input type="number" id="dhcp-provision-lease-time" class="pf-v5-c-form-control" 
+                                                    <input type="number" id="dhcp-provision-lease-time" class="pf-v5-c-form-control"
                                                            value="600" min="60" max="86400">
                                                     <div class="pf-v5-c-form__helper-text">
                                                         <div class="pf-v5-c-helper-text">
@@ -740,7 +740,7 @@ class DomainController {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="pf-v5-c-form__group pf-m-action">
                             <button id="provision-btn" class="pf-v5-c-button pf-m-primary" type="button">
                                 ${_("Provision Domain")}
@@ -750,14 +750,14 @@ class DomainController {
 
                     <div id="join-section" class="domain-section">
                         <h4>${_("Join Existing Domain")}</h4>
-                        
+
                         <!-- Basic Configuration -->
                         <div class="pf-v5-c-form">
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="existing-domain">
                                     <span class="pf-v5-c-form__label-text">${_("Domain to Join")} *</span>
                                 </label>
-                                <input type="text" id="existing-domain" class="pf-v5-c-form-control" 
+                                <input type="text" id="existing-domain" class="pf-v5-c-form-control"
                                        placeholder="example.com" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -767,12 +767,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="join-hostname">
                                     <span class="pf-v5-c-form__label-text">${_("Server Hostname")} *</span>
                                 </label>
-                                <input type="text" id="join-hostname" class="pf-v5-c-form-control" 
+                                <input type="text" id="join-hostname" class="pf-v5-c-form-control"
                                        placeholder="dc2.example.com" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -782,12 +782,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="domain-controller-ip">
                                     <span class="pf-v5-c-form__label-text">${_("Domain Controller IP")} *</span>
                                 </label>
-                                <input type="text" id="domain-controller-ip" class="pf-v5-c-form-control" 
+                                <input type="text" id="domain-controller-ip" class="pf-v5-c-form-control"
                                        placeholder="192.168.1.100" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -797,12 +797,12 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="domain-user">
                                     <span class="pf-v5-c-form__label-text">${_("Domain Administrator")} *</span>
                                 </label>
-                                <input type="text" id="domain-user" class="pf-v5-c-form-control" 
+                                <input type="text" id="domain-user" class="pf-v5-c-form-control"
                                        placeholder="administrator" required>
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -812,14 +812,14 @@ class DomainController {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="domain-password">
                                     <span class="pf-v5-c-form__label-text">${_("Password")} *</span>
                                 </label>
                                 <input type="password" id="domain-password" class="pf-v5-c-form-control" required>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="join-interface">
                                     <span class="pf-v5-c-form__label-text">${_("Network Interface")} *</span>
@@ -828,12 +828,12 @@ class DomainController {
                                     <option value="">${_("Loading interfaces...")}</option>
                                 </select>
                             </div>
-                            
+
                             <div class="pf-v5-c-form__group">
                                 <label class="pf-v5-c-form__label" for="join-site-name">
                                     <span class="pf-v5-c-form__label-text">${_("Site Name")}</span>
                                 </label>
-                                <input type="text" id="join-site-name" class="pf-v5-c-form-control" 
+                                <input type="text" id="join-site-name" class="pf-v5-c-form-control"
                                        placeholder="Default-First-Site-Name">
                                 <div class="pf-v5-c-form__helper-text">
                                     <div class="pf-v5-c-helper-text">
@@ -844,14 +844,14 @@ class DomainController {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Advanced Options Accordion -->
                         <div class="pf-v5-c-accordion" id="join-advanced-accordion">
                             <div class="pf-v5-c-accordion__item">
                                 <h3 class="pf-v5-c-accordion__toggle">
-                                    <button class="pf-v5-c-accordion__toggle-button" 
-                                            id="join-advanced-toggle" 
-                                            aria-expanded="false" 
+                                    <button class="pf-v5-c-accordion__toggle-button"
+                                            id="join-advanced-toggle"
+                                            aria-expanded="false"
                                             aria-controls="join-advanced-content">
                                         <span class="pf-v5-c-accordion__toggle-icon">
                                             <i class="fas fa-angle-right" aria-hidden="true"></i>
@@ -859,8 +859,8 @@ class DomainController {
                                         <span class="pf-v5-c-accordion__toggle-text">${_("Advanced Options")}</span>
                                     </button>
                                 </h3>
-                                <div class="pf-v5-c-accordion__expandable-content" 
-                                     id="join-advanced-content" 
+                                <div class="pf-v5-c-accordion__expandable-content"
+                                     id="join-advanced-content"
                                      hidden>
                                     <div class="pf-v5-c-accordion__expandable-content-body">
                                         <div class="pf-v5-c-form">
@@ -882,12 +882,12 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="pf-v5-c-form__group">
                                                 <label class="pf-v5-c-form__label" for="join-dns-forwarder">
                                                     <span class="pf-v5-c-form__label-text">${_("DNS Forwarder")}</span>
                                                 </label>
-                                                <input type="text" id="join-dns-forwarder" class="pf-v5-c-form-control" 
+                                                <input type="text" id="join-dns-forwarder" class="pf-v5-c-form-control"
                                                        placeholder="8.8.8.8">
                                                 <div class="pf-v5-c-form__helper-text">
                                                     <div class="pf-v5-c-helper-text">
@@ -897,8 +897,8 @@ class DomainController {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
-                                            
+
+
                                             <div class="pf-v5-c-form__group">
                                                 <div class="pf-v5-c-check">
                                                     <input class="pf-v5-c-check__input" type="checkbox" id="join-critical-only">
@@ -919,7 +919,7 @@ class DomainController {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="pf-v5-c-form__group pf-m-action">
                             <button id="join-btn" class="pf-v5-c-button pf-m-secondary" type="button">
                                 ${_("Join Domain")}
@@ -956,7 +956,7 @@ class DomainController {
                     <p id="loading-message">${_("Loading domain controller data...")}</p>
                 </div>
             </div>
-            
+
             <!-- NTP Configuration Modal -->
             <div class="pf-v5-c-backdrop" id="ntp-config-modal" hidden>
                 <div class="pf-v5-l-bullseye">
@@ -1024,7 +1024,7 @@ time.cloudflare.com"></textarea>
                     </div>
                 </div>
             </div>
-            
+
             <!-- DHCP Configuration Modal -->
             <div class="pf-v5-c-backdrop" id="dhcp-config-modal" hidden>
                 <div class="pf-v5-l-bullseye">
@@ -1122,27 +1122,6 @@ time.cloudflare.com"></textarea>
                     </div>
                 </div>
             </div>
-
-            <!-- Log Streaming Modal -->
-            <div class="pf-v5-c-backdrop" id="log-streaming-modal" hidden>
-                <div class="pf-v5-l-bullseye">
-                    <div class="pf-v5-c-modal-box pf-m-lg" role="dialog" aria-modal="true" aria-labelledby="log-streaming-modal-title">
-                        <header class="pf-v5-c-modal-box__header">
-                            <h1 class="pf-v5-c-modal-box__title" id="log-streaming-modal-title">
-                                ${_("Real-time Log Output")}
-                            </h1>
-                            <div class="pf-v5-c-modal-box__header-actions">
-                                <button id="close-log-streaming-modal" class="pf-v5-c-button pf-m-plain" type="button" aria-label="Close">
-                                    <i class="pf-v5-pficon pf-v5-pficon-close" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </header>
-                        <div class="pf-v5-c-modal-box__body" id="log-streaming-modal-body">
-                            <pre id="log-output" class="log-output-container"></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
         `;
 
         this.bindEvents();
@@ -1152,7 +1131,7 @@ time.cloudflare.com"></textarea>
         const provisionBtn = document.getElementById('provision-btn');
         const joinBtn = document.getElementById('join-btn');
         const leaveBtn = document.getElementById('leave-btn');
-        
+
         // Expandable sections
         const provisionToggle = document.getElementById('provision-advanced-toggle');
         const joinToggle = document.getElementById('join-advanced-toggle');
@@ -1160,21 +1139,21 @@ time.cloudflare.com"></textarea>
         provisionBtn.addEventListener('click', () => this.provisionDomain());
         joinBtn.addEventListener('click', () => this.joinDomain());
         leaveBtn.addEventListener('click', () => this.leaveDomain());
-        
+
         // NTP/FSMO management button (removed - now handled automatically)
-        
+
         // FSMO refresh button
         const fsmoRefreshBtn = document.getElementById('refresh-fsmo');
         fsmoRefreshBtn.addEventListener('click', () => this.handleFSMORefresh());
-        
+
         const forceReplicationBtn = document.getElementById('force-replication');
         forceReplicationBtn.addEventListener('click', () => this.forceDomainReplication());
-        
+
         // Service restart buttons
         const sambaRestartBtn = document.getElementById('restart-samba');
         const ntpRestartBtn = document.getElementById('restart-ntp');
         const dhcpRestartBtn = document.getElementById('restart-dhcp');
-        
+
         sambaRestartBtn.addEventListener('click', () => {
             // Determine which service to restart based on domain role
             const serviceName = this.domainInfo && this.domainInfo.role === 'Domain Member' ? 'winbind' : 'samba-ad-dc';
@@ -1182,7 +1161,7 @@ time.cloudflare.com"></textarea>
         });
         ntpRestartBtn.addEventListener('click', () => this.handleServiceRestart('chrony'));
         dhcpRestartBtn.addEventListener('click', () => this.handleServiceRestart('isc-dhcp-server'));
-        
+
         // DHCP management buttons
         const manageDhcpBtn = document.getElementById('manage-dhcp');
         const closeDhcpBtn = document.getElementById('close-dhcp-management');
@@ -1190,7 +1169,7 @@ time.cloudflare.com"></textarea>
         const saveDhcpBtn = document.getElementById('save-dhcp-config');
         const cancelDhcpBtn = document.getElementById('cancel-dhcp-edit');
         const syncDhcpBtn = document.getElementById('sync-dhcp-config');
-        
+
         manageDhcpBtn.addEventListener('click', () => this.showDhcpManagement());
         closeDhcpBtn.addEventListener('click', () => this.hideDhcpManagement());
         editDhcpBtn.addEventListener('click', () => this.showDhcpEditor());
@@ -1205,21 +1184,21 @@ time.cloudflare.com"></textarea>
         const saveNtpBtn = document.getElementById('save-ntp-config');
         const cancelNtpBtn = document.getElementById('cancel-ntp-edit');
         const syncNtpBtn = document.getElementById('sync-ntp-config');
-        
+
         manageNtpBtn.addEventListener('click', () => this.showNtpManagement());
         closeNtpBtn.addEventListener('click', () => this.hideNtpManagement());
         editNtpBtn.addEventListener('click', () => this.showNtpEditor());
         saveNtpBtn.addEventListener('click', () => this.saveNtpConfig());
         cancelNtpBtn.addEventListener('click', () => this.hideNtpEditor());
         syncNtpBtn.addEventListener('click', () => this.syncNtpConfig());
-        
+
         // Help button handlers (to blur focus after click for tooltip dismissal)
         const ntpHelpBtn = document.getElementById('ntp-help-btn');
         const dhcpHelpBtn = document.getElementById('dhcp-help-btn');
-        
+
         if (ntpHelpBtn) ntpHelpBtn.addEventListener('click', (e) => e.target.blur());
         if (dhcpHelpBtn) dhcpHelpBtn.addEventListener('click', (e) => e.target.blur());
-        
+
         // FSMO role transfer buttons
         const fsmoTransferButtons = [
             { id: 'transfer-pdc', role: 'pdc' },
@@ -1228,7 +1207,7 @@ time.cloudflare.com"></textarea>
             { id: 'transfer-schema', role: 'schema' },
             { id: 'transfer-domain-naming', role: 'domain-naming' }
         ];
-        
+
         const fsmoSeizeButtons = [
             { id: 'seize-pdc', role: 'pdc' },
             { id: 'seize-rid', role: 'rid' },
@@ -1236,14 +1215,14 @@ time.cloudflare.com"></textarea>
             { id: 'seize-schema', role: 'schema' },
             { id: 'seize-domain-naming', role: 'domain-naming' }
         ];
-        
+
         fsmoTransferButtons.forEach(({ id, role }) => {
             const btn = document.getElementById(id);
             if (btn) {
                 btn.addEventListener('click', () => this.fsmoManager.transferFSMORole(role));
             }
         });
-        
+
         fsmoSeizeButtons.forEach(({ id, role }) => {
             const btn = document.getElementById(id);
             if (btn) {
@@ -1254,46 +1233,34 @@ time.cloudflare.com"></textarea>
         // Handle expandable sections
         provisionToggle.addEventListener('click', () => this.toggleExpandableSection('provision-advanced'));
         joinToggle.addEventListener('click', () => this.toggleExpandableSection('join-advanced'));
-        
+
         // Modal backdrop click handlers
         const ntpModal = document.getElementById('ntp-config-modal');
         const dhcpModal = document.getElementById('dhcp-config-modal');
-        const logStreamingModal = document.getElementById('log-streaming-modal');
 
         ntpModal.addEventListener('click', (e) => {
             if (e.target === ntpModal) {
                 this.hideNtpEditor();
             }
         });
-        
+
         dhcpModal.addEventListener('click', (e) => {
             if (e.target === dhcpModal) {
                 this.hideDhcpEditor();
             }
         });
 
-        logStreamingModal.addEventListener('click', (e) => {
-            if (e.target === logStreamingModal) {
-                this.uiManager.hideLogModal();
-            }
-        });
-
-        const closeLogStreamingModalBtn = document.getElementById('close-log-streaming-modal');
-        if (closeLogStreamingModalBtn) {
-            closeLogStreamingModalBtn.addEventListener('click', () => this.uiManager.hideLogModal());
-        }
-        
         // Auto-generate NetBIOS name from domain name
         const domainNameInput = document.getElementById('domain-name-input');
         const netbiosNameInput = document.getElementById('netbios-name');
-        
+
         // Track if user has manually modified the NetBIOS field
         let netbiosManuallyEdited = false;
-        
+
         netbiosNameInput.addEventListener('input', () => {
             netbiosManuallyEdited = true;
         });
-        
+
         domainNameInput.addEventListener('input', () => {
             if (!netbiosManuallyEdited) {
                 const domainName = domainNameInput.value.trim();
@@ -1309,7 +1276,7 @@ time.cloudflare.com"></textarea>
         // Handle DHCP configuration checkbox
         const enableDhcpCheckbox = document.getElementById('enable-dhcp');
         const dhcpOptionsDiv = document.getElementById('dhcp-provision-options');
-        
+
         enableDhcpCheckbox.addEventListener('change', () => {
             if (enableDhcpCheckbox.checked) {
                 dhcpOptionsDiv.style.display = 'block';
@@ -1318,14 +1285,14 @@ time.cloudflare.com"></textarea>
             }
         });
     }
-    
+
     toggleExpandableSection(sectionId) {
         const toggle = document.getElementById(sectionId + '-toggle');
         const content = document.getElementById(sectionId + '-content');
         const icon = toggle.querySelector('.pf-v5-c-accordion__toggle-icon i');
-        
+
         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-        
+
         if (isExpanded) {
             toggle.setAttribute('aria-expanded', 'false');
             content.hidden = true;
@@ -1348,7 +1315,7 @@ time.cloudflare.com"></textarea>
         const interfaces = [];
         const lines = output.split('\n');
         let currentInterface = null;
-        
+
         for (const line of lines) {
             // Match interface line like "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP>"
             const interfaceMatch = line.match(/^\d+:\s+(\w+):\s+<(.+)>/);
@@ -1359,14 +1326,14 @@ time.cloudflare.com"></textarea>
                     interfaces.push(currentInterface);
                 }
             }
-            
+
             // Match MAC address line like "    link/ether 08:00:27:c9:d8:89"
             if (currentInterface) {
                 const macMatch = line.match(/^\s+link\/ether\s+([a-fA-F0-9:]{17})/);
                 if (macMatch) {
                     currentInterface.mac = macMatch[1];
                 }
-                
+
                 // Match IP address line like "    inet 192.168.1.100/24"
                 const ipMatch = line.match(/^\s+inet\s+(\d+\.\d+\.\d+\.\d+)\/\d+/);
                 if (ipMatch) {
@@ -1374,19 +1341,19 @@ time.cloudflare.com"></textarea>
                 }
             }
         }
-        
+
         return interfaces;
     }
 
     populateInterfaceSelectors() {
         const provisionSelector = document.getElementById('provision-interface');
         const joinSelector = document.getElementById('join-interface');
-        
+
         if (provisionSelector && joinSelector) {
-            const options = this.networkInterfaces.map(iface => 
+            const options = this.networkInterfaces.map(iface =>
                 `<option value="${iface.name}">${iface.name} (${iface.ips.join(', ')})</option>`
             ).join('');
-            
+
             provisionSelector.innerHTML = options;
             joinSelector.innerHTML = options;
         }
@@ -1394,7 +1361,7 @@ time.cloudflare.com"></textarea>
 
     displayNetworkInfo() {
         // Find the primary interface (first non-loopback UP interface with an IP)
-        const primaryInterface = this.networkInterfaces.find(iface => 
+        const primaryInterface = this.networkInterfaces.find(iface =>
             iface.ips.length > 0 && iface.name !== 'lo'
         ) || this.networkInterfaces[0];
 
@@ -1402,7 +1369,7 @@ time.cloudflare.com"></textarea>
             const interfaceElement = document.getElementById('network-interface');
             const ipElement = document.getElementById('network-ip');
             const macElement = document.getElementById('network-mac');
-            
+
             if (interfaceElement) interfaceElement.textContent = primaryInterface.name;
             if (ipElement) ipElement.textContent = primaryInterface.ips[0] || 'Not configured';
             if (macElement) macElement.textContent = primaryInterface.mac || 'Not available';
@@ -1412,7 +1379,7 @@ time.cloudflare.com"></textarea>
     showLoading(message = null) {
         const overlay = document.getElementById('loading-overlay');
         overlay.classList.remove('hidden');
-        
+
         if (message) {
             const messageElement = document.getElementById('loading-message');
             if (messageElement) {
@@ -1424,7 +1391,7 @@ time.cloudflare.com"></textarea>
     hideLoading() {
         const overlay = document.getElementById('loading-overlay');
         overlay.classList.add('hidden');
-        
+
         // Reset message to default
         const messageElement = document.getElementById('loading-message');
         if (messageElement) {
@@ -1438,7 +1405,7 @@ time.cloudflare.com"></textarea>
         if (overlay) {
             overlay.classList.remove('hidden');
         }
-        
+
         // Set initial loading message
         const messageElement = document.getElementById('loading-message');
         if (messageElement) {
@@ -1451,7 +1418,7 @@ time.cloudflare.com"></textarea>
         if (overlay) {
             overlay.classList.add('hidden');
         }
-        
+
         // Reset message to default
         const messageElement = document.getElementById('loading-message');
         if (messageElement) {
@@ -1492,15 +1459,15 @@ time.cloudflare.com"></textarea>
                 .then(output => {
                     clearTimeout(timeout);
                     console.log('Domain info output:', output);
-                    
+
                     const lines = output.split('\n');
                     const domainLine = lines.find(line => line.trim().startsWith('Domain') && line.includes(':'));
                     const forestLine = lines.find(line => line.trim().startsWith('Forest') && line.includes(':'));
-                    
+
                     if (domainLine && forestLine) {
                         const domain = domainLine.split(':')[1].trim();
                         const forest = forestLine.split(':')[1].trim();
-                        
+
                         this.getDomainSiteInfo(domain).then(site => {
                             this.updateDomainStatus({
                                 domain: domain,
@@ -1567,7 +1534,7 @@ time.cloudflare.com"></textarea>
                     if (realmMatch) {
                         const domain = realmMatch[1];
                         console.log('Found realm:', domain);
-                        
+
                         this.getDomainSiteInfo(domain).then(site => {
                             this.updateDomainStatus({
                                 domain: domain,
@@ -1608,7 +1575,7 @@ time.cloudflare.com"></textarea>
                     if (realmMatch) {
                         const domain = realmMatch[1];
                         console.log('Found ads realm:', domain);
-                        
+
                         this.getDomainSiteInfo(domain).then(site => {
                             this.updateDomainStatus({
                                 domain: domain,
@@ -1620,7 +1587,7 @@ time.cloudflare.com"></textarea>
                         resolve();
                         return;
                     }
-                    
+
                     console.log('Not joined to domain');
                     this.updateDomainStatus(null);
                     resolve();
@@ -1639,25 +1606,25 @@ time.cloudflare.com"></textarea>
                 .then(output => {
                     const currentHostname = output.trim();
                     console.log('Current hostname:', currentHostname);
-                    
+
                     // Populate hostname fields with current hostname
                     const provisionHostname = document.getElementById('provision-hostname');
                     const joinHostname = document.getElementById('join-hostname');
-                    
+
                     if (provisionHostname && currentHostname !== 'debian') {
                         provisionHostname.value = currentHostname;
                     }
-                    
+
                     if (joinHostname && currentHostname !== 'debian') {
                         joinHostname.value = currentHostname;
                     }
-                    
+
                     // If hostname is just 'debian', suggest proper FQDN
                     if (currentHostname === 'debian') {
                         if (provisionHostname) provisionHostname.placeholder = 'dc1.example.com';
                         if (joinHostname) joinHostname.placeholder = 'dc2.example.com';
                     }
-                    
+
                     this.loadingStates.hostname = true;
                     resolve();
                 })
@@ -1666,10 +1633,10 @@ time.cloudflare.com"></textarea>
                     // Set default placeholders
                     const provisionHostname = document.getElementById('provision-hostname');
                     const joinHostname = document.getElementById('join-hostname');
-                    
+
                     if (provisionHostname) provisionHostname.placeholder = 'dc1.example.com';
                     if (joinHostname) joinHostname.placeholder = 'dc2.example.com';
-                    
+
                     this.loadingStates.hostname = true; // Mark as complete even on error
                     resolve();
                 });
@@ -1690,26 +1657,26 @@ time.cloudflare.com"></textarea>
     // Emergency function to clear stuck interface and refresh status
     clearStuckInterface() {
         console.log('Clearing stuck interface...');
-        
+
         // Force hide loading overlay
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
             overlay.classList.add('hidden');
         }
-        
+
         // Clear any loading states
         const loadingElements = document.querySelectorAll('.pf-c-spinner, .spinner-border, .loading');
         loadingElements.forEach(el => {
             el.style.display = 'none';
             el.classList.add('hidden');
         });
-        
+
         // Re-enable buttons
         const buttons = document.querySelectorAll('button[disabled]');
         buttons.forEach(btn => {
             btn.disabled = false;
         });
-        
+
         // Refresh domain status
         console.log('Refreshing domain status after clearing stuck interface...');
         this.checkDomainStatus();
@@ -1723,11 +1690,11 @@ time.cloudflare.com"></textarea>
         const leaveSection = document.getElementById('leave-section');
         const provisionSection = document.getElementById('provision-section');
         const joinSection = document.getElementById('join-section');
-        
+
         if (info) {
             this.isDomainJoined = true;
             this.domainInfo = info;
-            
+
             // Update status badge based on role
             if (info.role === 'Domain Controller') {
                 statusBadge.textContent = _("Domain Controller");
@@ -1742,81 +1709,81 @@ time.cloudflare.com"></textarea>
                 statusBadge.textContent = _("Connected");
                 statusBadge.className = 'pf-v5-c-badge pf-m-green domain-status-badge';
             }
-            
+
             // Update domain details
             document.getElementById('domain-name').textContent = info.domain;
             document.getElementById('domain-role').textContent = info.role;
             document.getElementById('domain-site').textContent = info.site || 'Default-First-Site-Name';
             document.getElementById('domain-forest').textContent = info.forest || info.domain;
-            
+
             // Show connected state
             domainDetails.classList.remove('hidden');
             nodomainMessage.classList.add('hidden');
             leaveSection.classList.remove('hidden');
             provisionSection.classList.add('hidden');
             joinSection.classList.add('hidden');
-            
+
             // Update leave section based on role
             const leaveSectionTitle = leaveSection.querySelector('h4');
             const leaveAlert = leaveSection.querySelector('.pf-v5-c-alert__title');
             const leaveBtn = leaveSection.querySelector('#leave-btn');
-            
+
             if (info.role === 'Domain Member') {
                 leaveSectionTitle.textContent = _("Leave Domain");
                 leaveAlert.textContent = _("This will remove the server from the domain. Domain authentication will no longer work.");
                 leaveBtn.textContent = _("Leave Domain");
             } else {
-                leaveSectionTitle.textContent = _("Leave Domain"); 
+                leaveSectionTitle.textContent = _("Leave Domain");
                 leaveAlert.textContent = _("This will remove the server from the domain and reset all domain configurations.");
                 leaveBtn.textContent = _("Leave Domain");
             }
-            
+
             // Only show domain statistics and enable DC features for fully configured Domain Controllers
             if (info.role === 'Domain Controller') {
                 domainStats.classList.remove('hidden');
                 this.updateDomainStatistics();
-                
+
                 // Show DC-specific sections
                 const fsmoSection = document.querySelector('.fsmo-roles-section');
                 if (fsmoSection) fsmoSection.classList.remove('hidden');
-                
+
                 // Check service status for Domain Controllers only
                 this.checkServiceStatus();
-                
+
                 // Load FSMO roles for Domain Controllers
                 this.fsmoManager.loadFSMORoles();
-                
+
             } else if (info.role === 'Domain Controller (Needs Configuration)') {
                 // For DCs that need configuration, show limited info and configuration options
                 domainStats.classList.add('hidden');
-                
+
                 // Hide FSMO sections until properly configured
                 const fsmoSection = document.querySelector('.fsmo-roles-section');
                 if (fsmoSection) fsmoSection.classList.add('hidden');
-                
+
                 // Check service status to show what needs to be fixed
                 this.checkServiceStatus();
-                
+
                 // Don't try to load FSMO roles for unconfigured DCs
                 this.clearFSMORoles();
-                
+
                 // Show provision/join sections for completing configuration
                 provisionSection.classList.remove('hidden');
                 joinSection.classList.remove('hidden');
             } else {
                 domainStats.classList.add('hidden');
-                
+
                 // Hide DC-specific sections for domain members
                 const fsmoSection = document.querySelector('.fsmo-roles-section');
                 if (fsmoSection) fsmoSection.classList.add('hidden');
-                
+
                 // Clear statistics for domain members
                 const statElements = ['user-count', 'computer-count', 'group-count', 'ou-count'];
                 statElements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element) element.textContent = '—';
                 });
-                
+
                 // For domain members, show relevant service status (just basic services)
                 this.updateServiceLabelsForDomainMember();
                 this.checkDomainMemberServices();
@@ -1824,11 +1791,11 @@ time.cloudflare.com"></textarea>
         } else {
             this.isDomainJoined = false;
             this.domainInfo = null;
-            
+
             // Update status badge
             statusBadge.textContent = _("Not Connected");
             statusBadge.className = 'pf-v5-c-badge pf-m-red domain-status-badge';
-            
+
             // Show disconnected state
             domainDetails.classList.add('hidden');
             nodomainMessage.classList.remove('hidden');
@@ -1867,18 +1834,18 @@ time.cloudflare.com"></textarea>
         const adminUser = document.getElementById('admin-user').value.trim();
         const adminPassword = document.getElementById('admin-password').value;
         const selectedInterface = document.getElementById('provision-interface').value;
-        
+
         if (!domainName || !hostname || !adminPassword || !selectedInterface) {
             this.showError(_("Please fill in all required fields"));
             return;
         }
-        
+
         // Validate domain name format
         if (!domainName.includes('.')) {
             this.showError(_("Domain name must be in FQDN format (e.g., example.com)"));
             return;
         }
-        
+
         // Validate hostname format
         if (!this.validateHostname(hostname, domainName)) {
             this.showError(_("Hostname must be a valid FQDN within the domain (e.g., dc1.example.com)"));
@@ -1886,7 +1853,7 @@ time.cloudflare.com"></textarea>
         }
 
         this.showLoading();
-        
+
         // Set hostname first
         this.setHostname(hostname).then(() => {
             this.continueProvision(domainName, hostname, netbiosName, adminUser, adminPassword, selectedInterface);
@@ -1900,19 +1867,19 @@ time.cloudflare.com"></textarea>
         // Get the IP address for the selected interface
         const interfaceInfo = this.networkInterfaces.find(iface => iface.name === selectedInterface);
         const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : null;
-        
+
         if (!interfaceIP) {
             this.showError(_("Unable to get IP address for selected interface"));
             this.hideLoading();
             return;
         }
-        
+
         // Use provided NetBIOS name or auto-generate
         const finalNetbiosName = netbiosName || domainName.split('.')[0].toUpperCase().substring(0, 15);
-        
+
         // Use provided admin username or default
         const finalAdminUser = adminUser || 'Administrator';
-        
+
         // Build base command
         const command = [
             'samba-tool', 'domain', 'provision',
@@ -1922,9 +1889,9 @@ time.cloudflare.com"></textarea>
             '--server-role=dc',
             '--host-ip=' + interfaceIP
         ];
-        
+
         // Note: Custom admin user will be created after provisioning
-        
+
         // Add advanced options if specified
         const dnsBackend = document.getElementById('dns-backend').value;
         const dnsForwarder = document.getElementById('dns-forwarder').value.trim();
@@ -1932,30 +1899,30 @@ time.cloudflare.com"></textarea>
         const forestLevel = document.getElementById('forest-level').value;
         const useRfc2307 = document.getElementById('use-rfc2307').checked;
         const useXattrs = document.getElementById('use-xattrs').checked;
-        
+
         if (dnsBackend && dnsBackend !== 'SAMBA_INTERNAL') {
             command.push('--dns-backend=' + dnsBackend);
         }
-        
+
         if (dnsForwarder) {
             command.push('--option=dns forwarder = ' + dnsForwarder);
         }
-        
+
         if (siteName) {
             command.push('--site=' + siteName);
             console.log('Using site name:', siteName);
         } else {
             console.log('No site name provided, using default');
         }
-        
+
         if (forestLevel) {
             command.push('--function-level=' + forestLevel);
         }
-        
+
         if (useRfc2307) {
             command.push('--use-rfc2307');
         }
-        
+
         if (useXattrs) {
             command.push('--use-xattrs=yes');
         }
@@ -1964,26 +1931,23 @@ time.cloudflare.com"></textarea>
         cockpit.spawn(['rm', '-f', '/etc/samba/smb.conf'], { superuser: "try" })
             .then(() => {
                 // Now run the provision command
-                this.uiManager.showLogModal("Provisioning domain...");
-                const proc = cockpit.spawn(command, { superuser: "try" });
-                proc.stream(data => this.handleLogStream(data));
-                return proc;
+                return cockpit.spawn(command, { superuser: "try" });
             })
             .then(output => {
                 console.log('Provision output:', output);
-                
+
                 // Configure NTP for PDC Emulator (primary domain controller)
                 const ntpServers = document.getElementById('ntp-servers').value.trim();
                 this.configureNTPForPDC(ntpServers);
-                
+
                 // Update Kerberos configuration for RSAT compatibility
                 this.updateKerberosConfig(domainName, hostname);
-                
+
                 // Create custom admin user if specified
-                const setupUserPromise = (finalAdminUser !== 'Administrator') ? 
-                    this.createCustomAdminUser(finalAdminUser, adminPassword, domainName) : 
+                const setupUserPromise = (finalAdminUser !== 'Administrator') ?
+                    this.createCustomAdminUser(finalAdminUser, adminPassword, domainName) :
                     Promise.resolve();
-                
+
                 return setupUserPromise.then(() => {
                     // If a custom site name was provided, create the site and move the DC
                     if (siteName && siteName !== 'Default-First-Site-Name') {
@@ -1996,7 +1960,7 @@ time.cloudflare.com"></textarea>
                         const dhcpRangeStart = document.getElementById('dhcp-provision-range-start').value.trim();
                         const dhcpRangeEnd = document.getElementById('dhcp-provision-range-end').value.trim();
                         const dhcpLeaseTime = document.getElementById('dhcp-provision-lease-time').value.trim();
-                        
+
                         return this.setupDhcpConfiguration(domainName, interfaceIP, interfaceInfo, {
                             rangeStart: dhcpRangeStart,
                             rangeEnd: dhcpRangeEnd,
@@ -2013,7 +1977,7 @@ time.cloudflare.com"></textarea>
                         })
                         .then(() => {
                             console.log('Samba AD DC service enabled and started successfully');
-                            
+
                             this.hideLoading();
                             this.getDomainSiteInfo(domainName).then(actualSite => {
                                 this.updateDomainStatus({
@@ -2031,7 +1995,7 @@ time.cloudflare.com"></textarea>
                                 });
                             });
                             this.showSuccess(_("Domain provisioned successfully!"));
-                            
+
                             // Refresh service status after a short delay
                             setTimeout(() => {
                                 this.checkServiceStatus();
@@ -2077,22 +2041,22 @@ time.cloudflare.com"></textarea>
         const username = document.getElementById('domain-user').value.trim();
         const password = document.getElementById('domain-password').value;
         const selectedInterface = document.getElementById('join-interface').value;
-        
+
         if (!domainName || !hostname || !domainControllerIP || !username || !password || !selectedInterface) {
             this.showError(_("Please fill in all required fields"));
             return;
         }
-        
+
         // Validate hostname format
         if (!this.validateHostname(hostname, domainName)) {
             this.showError(_("Hostname must be a valid FQDN within the domain (e.g., dc2.example.com)"));
             return;
         }
-        
+
         // Validate network connectivity to domain controller
         console.log('Testing connectivity to domain controller:', domainControllerIP);
         this.showLoading(_("Testing connectivity to domain controller..."));
-        
+
         // Set hostname first, then test connectivity
         this.setHostname(hostname).then(() => {
             // Test connectivity with multiple approaches
@@ -2110,7 +2074,7 @@ time.cloudflare.com"></textarea>
             this.showError(_("Failed to set hostname: ") + error.message);
         });
     }
-    
+
     testDomainControllerConnectivity(dcIP, domainName) {
         // Test basic network connectivity first
         return cockpit.spawn(['ping', '-c', '2', '-W', '3', dcIP], { superuser: "try" })
@@ -2136,20 +2100,20 @@ time.cloudflare.com"></textarea>
                 }
             });
     }
-    
+
     proceedWithDomainJoin(domainName, hostname, domainControllerIP, username, password, selectedInterface) {
         this.showLoading(_("Joining domain " + domainName + "..."));
-        
+
         // Get the IP address for the selected interface
         const interfaceInfo = this.networkInterfaces.find(iface => iface.name === selectedInterface);
         const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : null;
-        
+
         if (!interfaceIP) {
             this.showError(_("Unable to get IP address for selected interface"));
             this.hideLoading();
             return;
         }
-        
+
         // Build base command
         const command = [
             'samba-tool', 'domain', 'join', domainName, 'DC',
@@ -2157,13 +2121,13 @@ time.cloudflare.com"></textarea>
             '--ipaddress=' + interfaceIP,
             '--server=' + domainControllerIP
         ];
-        
+
         // Add advanced options if specified
         const siteName = document.getElementById('join-site-name').value.trim();
         const dnsBackend = document.getElementById('join-dns-backend').value;
         const dnsForwarder = document.getElementById('join-dns-forwarder').value.trim();
         const criticalOnly = document.getElementById('join-critical-only').checked;
-        
+
         // For now, don't specify custom sites during join to avoid site creation issues
         // The server will be placed in the default site and can be moved later
         if (siteName && siteName !== 'Default-First-Site-Name') {
@@ -2171,15 +2135,15 @@ time.cloudflare.com"></textarea>
         } else {
             console.log('Using default site for join');
         }
-        
+
         if (dnsBackend && dnsBackend !== 'SAMBA_INTERNAL') {
             command.push('--dns-backend=' + dnsBackend);
         }
-        
+
         if (dnsForwarder) {
             command.push('--option=dns forwarder = ' + dnsForwarder);
         }
-        
+
         if (criticalOnly) {
             command.push('--domain-critical-only');
         }
@@ -2189,7 +2153,7 @@ time.cloudflare.com"></textarea>
             .then(() => {
                 // Configure DNS to use the domain controller before joining
                 const dnsConfig = `nameserver ${domainControllerIP}\nnameserver 8.8.8.8\n`;
-                
+
                 // Backup existing resolv.conf
                 return cockpit.spawn(['cp', '/etc/resolv.conf', '/etc/resolv.conf.backup'], { superuser: "try" })
                     .catch(() => console.log('Could not backup resolv.conf'));
@@ -2202,13 +2166,13 @@ time.cloudflare.com"></textarea>
             .then(() => {
                 // Configure firewall for RPC dynamic ports needed for domain replication
                 console.log('Configuring ufw firewall for domain replication...');
-                
+
                 const ufwCommands = [
                     'ufw allow 1024:65535/tcp',   // RPC dynamic ports
                     'ufw allow 1024:65535/udp'    // RPC dynamic ports UDP
                 ];
-                
-                return Promise.all(ufwCommands.map(cmd => 
+
+                return Promise.all(ufwCommands.map(cmd =>
                     cockpit.spawn(cmd.split(' '), { superuser: "try" })
                         .catch(error => console.log('UFW command failed:', cmd, error.message))
                 ));
@@ -2217,14 +2181,11 @@ time.cloudflare.com"></textarea>
                 console.log('DNS configured to use domain controller:', domainControllerIP);
                 console.log('Join command:', command.join(' '));
                 // Now run the join command
-                this.uiManager.showLogModal("Joining domain...");
-                const proc = cockpit.spawn(command, { superuser: "try" });
-                proc.stream(data => this.handleLogStream(data));
-                return proc;
+                return cockpit.spawn(command, { superuser: "try" });
             })
             .then(output => {
                 console.log('Domain join successful, enabling and starting samba-ad-dc...');
-                
+
                 // Enable and start samba-ad-dc service after successful join
                 return cockpit.spawn(['systemctl', 'enable', 'samba-ad-dc'], { superuser: "try" })
                     .then(() => {
@@ -2232,13 +2193,13 @@ time.cloudflare.com"></textarea>
                     })
                     .then(() => {
                         console.log('Samba AD DC service enabled and started successfully');
-                        
+
                         // Configure NTP for additional domain controller (gets time from PDC)
                         this.configureNTPForAdditionalDC(domainControllerIP);
-                        
+
                         // Update Kerberos configuration for RSAT compatibility
                         this.updateKerberosConfig(domainName, hostname);
-                        
+
                         this.hideLoading();
                         this.getDomainSiteInfo(domainName).then(actualSite => {
                             this.updateDomainStatus({
@@ -2256,7 +2217,7 @@ time.cloudflare.com"></textarea>
                             });
                         });
                         this.showSuccess(_("Successfully joined domain as Domain Controller!"));
-                        
+
                         // Refresh service status after a short delay
                         setTimeout(() => {
                             this.checkServiceStatus();
@@ -2266,7 +2227,7 @@ time.cloudflare.com"></textarea>
                         console.warn('Service start failed but join succeeded:', serviceError);
                         // Still show success but with a note about service
                         this.configureNTPForAdditionalDC(domainControllerIP);
-                        
+
                         // Update Kerberos configuration for RSAT compatibility
                         this.updateKerberosConfig(domainName, hostname);
                         this.hideLoading();
@@ -2304,7 +2265,7 @@ time.cloudflare.com"></textarea>
         }
 
         this.showLoading();
-        
+
         // First try to demote properly
         cockpit.spawn(['samba-tool', 'domain', 'demote'], { superuser: "try" })
             .then(output => {
@@ -2321,7 +2282,7 @@ time.cloudflare.com"></textarea>
 
     createAndMoveSite(siteName, domainName) {
         console.log('Creating site:', siteName);
-        
+
         // Create the new site (ignore if it already exists)
         return cockpit.spawn(['samba-tool', 'sites', 'create', siteName], { superuser: "try" })
             .then(() => {
@@ -2364,7 +2325,7 @@ time.cloudflare.com"></textarea>
 
     configureNTPForPDC() {
         console.log('Configuring NTP for PDC Emulator (primary domain controller)');
-        
+
         // PDC should get time from external reliable sources
         const ntpConfig = `
 # NTP configuration for PDC Emulator (added by cockpit-domain-controller)
@@ -2382,14 +2343,14 @@ allow all
 # Serve time even if not synchronized to external sources
 local stratum 10
 `;
-        
+
         // Backup existing chrony.conf and add our configuration
         const commands = [
             ['cp', '/etc/chrony.conf', '/etc/chrony.conf.backup'],
             ['sh', '-c', `echo '${ntpConfig}' >> /etc/chrony.conf`],
             ['systemctl', 'restart', 'chrony']
         ];
-        
+
         let configPromise = Promise.resolve();
         commands.forEach(command => {
             configPromise = configPromise.then(() => {
@@ -2398,7 +2359,7 @@ local stratum 10
                 });
             });
         });
-        
+
         configPromise.then(() => {
             console.log('PDC NTP configuration completed');
         });
@@ -2406,7 +2367,7 @@ local stratum 10
 
     configureNTPForAdditionalDC(pdcIP) {
         console.log('Configuring NTP for additional domain controller');
-        
+
         // Additional DC should get time from PDC, not external sources
         const ntpConfig = `
 # NTP configuration for additional domain controller (added by cockpit-domain-controller)
@@ -2421,14 +2382,14 @@ local stratum 15
 # Allow time serving to domain clients
 allow all
 `;
-        
+
         // Backup existing chrony.conf and add our configuration
         const commands = [
             ['cp', '/etc/chrony.conf', '/etc/chrony.conf.backup'],
             ['sh', '-c', `echo '${ntpConfig}' >> /etc/chrony.conf`],
             ['systemctl', 'restart', 'chrony']
         ];
-        
+
         let configPromise = Promise.resolve();
         commands.forEach(command => {
             configPromise = configPromise.then(() => {
@@ -2437,7 +2398,7 @@ allow all
                 });
             });
         });
-        
+
         configPromise.then(() => {
             console.log('Additional DC NTP configuration completed');
         });
@@ -2445,7 +2406,7 @@ allow all
 
     forceLeaveCleanup() {
         console.log('Attempting comprehensive domain cleanup...');
-        
+
         // Comprehensive cleanup: remove ALL domain-related configurations
         const cleanupCommands = [
             // Stop all domain-related services
@@ -2454,12 +2415,12 @@ allow all
             ['systemctl', 'stop', 'chrony'],
             ['systemctl', 'stop', 'dhcp-fsmo-monitor.timer'],
             ['systemctl', 'stop', 'ntp-fsmo-monitor.timer'],
-            
+
             // Disable services
             ['systemctl', 'disable', 'samba-ad-dc'],
             ['systemctl', 'disable', 'dhcp-fsmo-monitor.timer'],
             ['systemctl', 'disable', 'ntp-fsmo-monitor.timer'],
-            
+
             // Remove Samba AD DC configuration
             ['rm', '-rf', '/etc/samba/smb.conf'],
             ['rm', '-rf', '/etc/samba/smb.conf.backup'],
@@ -2467,24 +2428,24 @@ allow all
             ['rm', '-rf', '/var/lib/samba/sysvol'],
             ['rm', '-rf', '/var/cache/samba'],
             ['rm', '-rf', '/var/log/samba'],
-            
+
             // Clean up DNS configuration
             ['rm', '-rf', '/etc/bind/named.conf.local.backup'],
-            
+
             // Reset hostname to non-domain format if needed
             // ['hostnamectl', 'set-hostname', 'localhost'],
-            
+
             // Clean up DHCP configuration (reset to basic)
             ['rm', '-rf', '/etc/dhcp/dhcpd.conf.backup'],
-            
+
             // Reset Kerberos configuration
             ['rm', '-rf', '/etc/krb5.conf'],
             ['rm', '-rf', '/etc/krb5.keytab'],
-            
+
             // Clean up Chrony NTP configuration (restore default)
             ['rm', '-rf', '/etc/chrony.conf.backup'],
             ['cp', '/usr/share/chrony/chrony.conf', '/etc/chrony.conf'],
-            
+
             // Remove FSMO management components
             ['rm', '-rf', '/usr/local/bin/dhcp-fsmo-manager.sh'],
             ['rm', '-rf', '/usr/local/bin/ntp-fsmo-manager.sh'],
@@ -2492,25 +2453,25 @@ allow all
             ['rm', '-rf', '/etc/systemd/system/dhcp-fsmo-monitor.timer'],
             ['rm', '-rf', '/etc/systemd/system/ntp-fsmo-monitor.service'],
             ['rm', '-rf', '/etc/systemd/system/ntp-fsmo-monitor.timer'],
-            
+
             // Clean up resolv.conf
             ['rm', '-rf', '/etc/resolv.conf.backup'],
-            
+
             // Reload systemd after removing unit files
             ['systemctl', 'daemon-reload'],
-            
+
             // Reset services to default state
             ['systemctl', 'enable', 'chrony'],
             ['systemctl', 'start', 'chrony'],
-            
+
             // Restore original /etc/hosts if backup exists
             ['bash', '-c', 'if [ -f /etc/hosts.backup ]; then mv /etc/hosts.backup /etc/hosts; fi'],
-            
+
             // Clear any cached credentials
             ['bash', '-c', 'rm -rf /tmp/krb5cc_* 2>/dev/null || true'],
             ['bash', '-c', 'rm -rf /var/tmp/krb5cc_* 2>/dev/null || true']
         ];
-        
+
         // Create a basic DHCP config to replace the domain one
         const basicDhcpConfig = `# Basic DHCP configuration - NOT domain integrated
 # This is a minimal configuration for the DHCP server
@@ -2548,9 +2509,9 @@ log-facility local7;
 	fcc-mit-ticketflags = true
 	udp_preference_limit = 0
 `;
-        
+
         let cleanupPromise = Promise.resolve();
-        
+
         cleanupCommands.forEach(command => {
             cleanupPromise = cleanupPromise.then(() => {
                 console.log('Running cleanup command:', command.join(' '));
@@ -2559,7 +2520,7 @@ log-facility local7;
                 });
             });
         });
-        
+
         // Write basic configuration files
         cleanupPromise = cleanupPromise.then(() => {
             console.log('Writing basic DHCP configuration...');
@@ -2568,7 +2529,7 @@ log-facility local7;
             console.log('Writing basic Kerberos configuration...');
             return cockpit.file('/etc/krb5.conf', { superuser: "try" }).replace(basicKrb5Config);
         });
-        
+
         cleanupPromise.then(() => {
             this.hideLoading();
             this.updateDomainStatus(null);
@@ -2587,7 +2548,7 @@ log-facility local7;
             this.showLoading();
         }
         console.log('Starting domain status check...');
-        
+
         const timeout = setTimeout(() => {
             console.log('Command timed out after 10 seconds');
             if (!isInitialLoad) {
@@ -2595,7 +2556,7 @@ log-facility local7;
             }
             this.updateDomainStatus(null);
         }, 10000);
-        
+
         // Check if local domain exists first (Domain Controller check)
         cockpit.spawn(['samba-tool', 'domain', 'info', '127.0.0.1'], { superuser: "try" })
             .then(output => {
@@ -2604,15 +2565,15 @@ log-facility local7;
                 if (!isInitialLoad) {
                     this.hideLoading();
                 }
-                
+
                 const lines = output.split('\n');
                 const domainLine = lines.find(line => line.trim().startsWith('Domain') && line.includes(':'));
                 const forestLine = lines.find(line => line.trim().startsWith('Forest') && line.includes(':'));
-                
+
                 if (domainLine) {
                     const domain = domainLine.split(':')[1]?.trim();
                     const forest = forestLine ? forestLine.split(':')[1]?.trim() : domain;
-                    
+
                     if (domain) {
                         this.getDomainSiteInfo(domain).then(site => {
                             this.updateDomainStatus({
@@ -2629,22 +2590,22 @@ log-facility local7;
                                 forest: forest
                             });
                         });
-                        
+
                         // Periodically check and update NTP configuration based on FSMO roles
                         console.log('Checking NTP configuration based on FSMO roles...');
                         this.checkAndUpdateNTPForFSMO().catch(error => {
                             console.log('Periodic NTP/FSMO check failed:', error);
                         });
-                        
+
                         // Show current NTP status
                         this.showCurrentNTPStatus();
-                        
+
                         // Check service status for Domain Controllers
                         this.checkServiceStatus();
-                        
+
                         // Load FSMO roles
                         this.fsmoManager.loadFSMORoles();
-                        
+
                         // Set up periodic FSMO role updates
                         if (this.fsmoUpdateInterval) {
                             clearInterval(this.fsmoUpdateInterval);
@@ -2671,7 +2632,7 @@ log-facility local7;
 
     checkDomainControllerStatus() {
         console.log('Checking for domain controller indicators...');
-        
+
         // Check multiple indicators that this should be a domain controller
         const indicators = {
             hasKrb5Config: false,
@@ -2680,7 +2641,7 @@ log-facility local7;
             hasSambaPrivateDir: false,
             domain: null
         };
-        
+
         // Check 1: Kerberos configuration (indicates domain involvement)
         cockpit.file('/etc/krb5.conf').read()
             .then(content => {
@@ -2761,16 +2722,16 @@ log-facility local7;
 
     async evaluateDomainControllerStatus(indicators) {
         console.log('DC indicators:', indicators);
-        
+
         if (indicators.hasKrb5Config && indicators.domain) {
             // Has domain configuration - assume it's a DC
             let role = 'Domain Controller';
-            
+
             // Check if it needs configuration
             if (!indicators.hasSmblConf || !indicators.hasSambaPrivateDir) {
                 role = 'Domain Controller (Needs Configuration)';
             }
-            
+
             this.getDomainSiteInfo(indicators.domain).then(site => {
                 this.updateDomainStatus({
                     domain: indicators.domain,
@@ -2790,7 +2751,7 @@ log-facility local7;
             // No clear DC indicators, fall back to member check
             this.checkDomainMemberStatus();
         }
-        
+
         const isInitialLoad = Object.values(this.loadingStates).some(state => !state);
         if (!isInitialLoad) {
             this.hideLoading();
@@ -2800,16 +2761,16 @@ log-facility local7;
     async checkDomainMemberStatus() {
         console.log('Checking domain member status...');
         const isInitialLoad = Object.values(this.loadingStates).some(state => !state);
-        
+
         // Check /etc/krb5.conf for domain info first (more reliable)
         cockpit.file('/etc/krb5.conf').read()
             .then(content => {
                 console.log('Checking krb5.conf for domain info...');
                 const realmMatch = content.match(/default_realm\s*=\s*([^\s\n]+)/i);
-                
+
                 if (realmMatch) {
                     const domain = realmMatch[1].toLowerCase();
-                    
+
                     // Try to get site information from DNS
                     this.getDomainSiteInfo(domain).then(site => {
                         this.updateDomainStatus({
@@ -2859,7 +2820,7 @@ log-facility local7;
                 console.log('Domain member info output:', output);
                 const lines = output.split('\n');
                 const realmLine = lines.find(line => line.trim().toLowerCase().includes('realm'));
-                
+
                 if (realmLine) {
                     const realmMatch = realmLine.match(/realm[:\s]+([^\s]+)/i);
                     if (realmMatch) {
@@ -2885,7 +2846,7 @@ log-facility local7;
                         return;
                     }
                 }
-                
+
                 console.log('Not joined to domain');
                 this.updateDomainStatus(null);
                 if (!isInitialLoad) {
@@ -2904,21 +2865,21 @@ log-facility local7;
     async getDomainSiteInfo(domain) {
         try {
             console.log('Getting site information for domain:', domain);
-            
+
             // First try to get site info from samba-tool
             try {
                 // Get current server name
                 const hostname = await cockpit.spawn(['hostname', '-s'], { superuser: "try" });
                 const serverName = hostname.trim();
-                
+
                 // Try LDAP query to find current server's site
                 const domainDN = domain.split('.').map(part => `DC=${part}`).join(',');
                 const ldapOutput = await cockpit.spawn([
-                    'ldapsearch', '-x', '-H', 'ldap://localhost', 
+                    'ldapsearch', '-x', '-H', 'ldap://localhost',
                     '-b', `CN=Sites,CN=Configuration,${domainDN}`,
                     `(cn=${serverName})`, 'distinguishedName'
                 ], { superuser: "try" });
-                
+
                 // Parse LDAP output to extract site name
                 const siteMatch = ldapOutput.match(/CN=[^,]+,CN=Servers,CN=([^,]+),CN=Sites/);
                 if (siteMatch && siteMatch[1]) {
@@ -2928,12 +2889,12 @@ log-facility local7;
             } catch (ldapError) {
                 console.log('Failed to get site info via LDAP:', ldapError);
             }
-            
+
             // Fallback: try samba-tool sites list and find current server
             try {
                 const sitesOutput = await cockpit.spawn(['samba-tool', 'sites', 'list'], { superuser: "try" });
                 console.log('Available sites:', sitesOutput);
-                
+
                 // If we have sites other than default, try to determine which one
                 const sites = sitesOutput.split('\n').filter(site => site.trim() && site !== 'Default-First-Site-Name');
                 if (sites.length > 0) {
@@ -2945,7 +2906,7 @@ log-facility local7;
             } catch (sitesError) {
                 console.log('Failed to get sites list:', sitesError);
             }
-            
+
             // Final fallback
             return 'Default-First-Site-Name';
         } catch (error) {
@@ -2962,35 +2923,35 @@ log-facility local7;
         } catch(e) {
             storage = window.sessionStorage;
         }
-        
+
         const handleThemeChange = () => {
             // Get current theme setting from shell:style
             const themeSetting = storage.getItem('shell:style') || 'auto';
             const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
+
             // Apply theme logic same as cockpit shell
             const shouldBeDark = (themeSetting === 'dark') || (themeSetting === 'auto' && systemDark);
-            
+
             if (shouldBeDark) {
                 document.documentElement.classList.add('pf-v5-theme-dark');
             } else {
                 document.documentElement.classList.remove('pf-v5-theme-dark');
             }
-            
+
             console.log('Theme changed to:', shouldBeDark ? 'dark' : 'light', '(setting:', themeSetting + ')');
         };
-        
+
         // Listen for system theme changes
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         mediaQuery.addEventListener('change', handleThemeChange);
-        
+
         // Listen for storage changes (theme preference changes)
         window.addEventListener('storage', (e) => {
             if (e.key === 'shell:style') {
                 handleThemeChange();
             }
         });
-        
+
         // Also listen for manual theme changes by observing the document element
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -3000,12 +2961,12 @@ log-facility local7;
                 }
             });
         });
-        
-        observer.observe(document.documentElement, { 
-            attributes: true, 
-            attributeFilter: ['class'] 
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
         });
-        
+
         // Initial theme detection and application
         handleThemeChange();
     }
@@ -3020,10 +2981,10 @@ log-facility local7;
         // In a real implementation, this would show a proper toast notification
         // For now, using alert as placeholder
         alert(message);
-        
+
         // Auto-refresh domain status for FSMO-related success messages
-        if (message.toLowerCase().includes('role') && 
-            (message.toLowerCase().includes('seized') || 
+        if (message.toLowerCase().includes('role') &&
+            (message.toLowerCase().includes('seized') ||
              message.toLowerCase().includes('transferred'))) {
             console.log('FSMO-related success detected, scheduling domain status refresh...');
             setTimeout(() => {
@@ -3035,14 +2996,14 @@ log-facility local7;
 
     configureNTPForPDC(ntpServers = null) {
         console.log('Configuring NTP for PDC Emulator (primary domain controller)');
-        
+
         // Parse NTP servers (comma-separated) or use defaults
         const defaultServers = 'time.cloudflare.com,time.google.com,pool.ntp.org,time.nist.gov';
         const serverList = (ntpServers || defaultServers).split(',').map(s => s.trim()).filter(s => s);
-        
+
         // Build NTP configuration
         const serverLines = serverList.map(server => `pool ${server} iburst`).join('\n');
-        
+
         // PDC should get time from external reliable sources
         const ntpConfig = `
 # NTP configuration for PDC Emulator (added by cockpit-domain-controller)
@@ -3058,7 +3019,7 @@ local stratum 10
 
         // Append NTP configuration to chrony.conf
         const configCommand = `echo '${ntpConfig}' >> /etc/chrony/chrony.conf`;
-        
+
         return cockpit.spawn(['sh', '-c', configCommand], { superuser: "try" })
             .then(() => {
                 console.log('NTP configuration added to chrony.conf');
@@ -3075,14 +3036,14 @@ local stratum 10
 
     configureNTPForAdditionalDC(pdcIP, ntpServers = null) {
         console.log('Configuring NTP for additional domain controller, PDC IP:', pdcIP);
-        
+
         // Parse fallback NTP servers (comma-separated) or use defaults
         const defaultServers = 'time.cloudflare.com,time.google.com';
         const serverList = (ntpServers || defaultServers).split(',').map(s => s.trim()).filter(s => s);
-        
+
         // Build fallback NTP configuration
         const fallbackLines = serverList.map(server => `pool ${server} iburst`).join('\n');
-        
+
         // Additional DCs should get time from the PDC Emulator
         const ntpConfig = `
 # NTP configuration for additional domain controller (added by cockpit-domain-controller)
@@ -3101,7 +3062,7 @@ local stratum 10
 
         // Append NTP configuration to chrony.conf
         const configCommand = `echo '${ntpConfig}' >> /etc/chrony/chrony.conf`;
-        
+
         return cockpit.spawn(['sh', '-c', configCommand], { superuser: "try" })
             .then(() => {
                 console.log('NTP configuration added to chrony.conf');
@@ -3118,7 +3079,7 @@ local stratum 10
 
     createCustomAdminUser(username, password, domainName) {
         console.log('Creating custom admin user:', username);
-        
+
         return cockpit.spawn([
             'samba-tool', 'user', 'create', username, password,
             '--description=Custom Domain Administrator'
@@ -3148,29 +3109,29 @@ local stratum 10
 
     checkAndUpdateNTPForFSMO(ntpServers = null) {
         console.log('Checking FSMO roles and updating NTP configuration accordingly');
-        
+
         // Check if this DC holds the PDC Emulator role
         return cockpit.spawn(['samba-tool', 'fsmo', 'show'], { superuser: "try" })
             .then(output => {
                 console.log('FSMO roles output:', output);
-                
+
                 // Parse the output to see if this server holds PDC Emulator role
                 const lines = output.split('\n');
                 const pdcLine = lines.find(line => line.includes('PdcRole'));
-                
+
                 if (pdcLine) {
                     // Extract the server name that holds the PDC role
                     const match = pdcLine.match(/PdcRole owner: (.+)/);
                     if (match) {
                         const pdcOwner = match[1].trim();
-                        
+
                         // Get this server's hostname
                         return cockpit.spawn(['hostname', '-f'], { superuser: "try" })
                             .then(hostname => {
                                 const thisServer = hostname.trim();
                                 console.log('PDC Emulator owner:', pdcOwner, 'This server:', thisServer);
-                                
-                                if (pdcOwner.toLowerCase().includes(thisServer.toLowerCase()) || 
+
+                                if (pdcOwner.toLowerCase().includes(thisServer.toLowerCase()) ||
                                     thisServer.toLowerCase().includes(pdcOwner.toLowerCase())) {
                                     console.log('This server holds PDC Emulator role - configuring as PDC');
                                     return this.reconfigureNTPForPDC(ntpServers);
@@ -3189,7 +3150,7 @@ local stratum 10
                             });
                     }
                 }
-                
+
                 console.log('Could not determine PDC Emulator role, using external sources');
                 return this.reconfigureNTPForPDC(ntpServers); // Fallback
             })
@@ -3206,12 +3167,12 @@ local stratum 10
             .then(output => {
                 const lines = output.split('\n');
                 const pdcLine = lines.find(line => line.includes('PdcRole'));
-                
+
                 if (pdcLine) {
                     const match = pdcLine.match(/PdcRole owner: (.+)/);
                     if (match) {
                         const pdcServer = match[1].trim();
-                        
+
                         // Try to resolve the PDC server name to IP
                         return cockpit.spawn(['getent', 'hosts', pdcServer], { superuser: "try" })
                             .then(hostOutput => {
@@ -3235,14 +3196,14 @@ local stratum 10
 
     async reconfigureNTPForPDC(ntpServers = null) {
         console.log('Reconfiguring NTP for PDC Emulator role using SYSVOL orchestrator');
-        
+
         try {
             // Use SYSVOL-based orchestrator for NTP configuration
             await this.sysvolManager.triggerOrchestration('ntp');
             console.log('NTP reconfiguration completed via SYSVOL orchestrator');
         } catch (error) {
             console.error('Failed to reconfigure NTP via orchestrator, falling back to direct config:', error);
-            
+
             // Fallback to direct configuration
             return cockpit.spawn(['sed', '-i', '/# NTP configuration.*added by cockpit-domain-controller/,/^$/d', '/etc/chrony/chrony.conf'], { superuser: "try" })
                 .then(() => {
@@ -3256,14 +3217,14 @@ local stratum 10
 
     async reconfigureNTPForAdditionalDC(pdcIP, ntpServers = null) {
         console.log('Reconfiguring NTP for additional DC role using SYSVOL orchestrator, PDC IP:', pdcIP);
-        
+
         try {
             // Use SYSVOL-based orchestrator for NTP configuration
             await this.sysvolManager.triggerOrchestration('ntp');
             console.log('NTP reconfiguration completed via SYSVOL orchestrator');
         } catch (error) {
             console.error('Failed to reconfigure NTP via orchestrator, falling back to direct config:', error);
-            
+
             // Fallback to direct configuration
             return cockpit.spawn(['sed', '-i', '/# NTP configuration.*added by cockpit-domain-controller/,/^$/d', '/etc/chrony/chrony.conf'], { superuser: "try" })
                 .then(() => {
@@ -3287,33 +3248,33 @@ local stratum 10
 
     checkAndUpdateNTPForFSMOWithFeedback() {
         console.log('Checking FSMO roles and updating NTP configuration with user feedback');
-        
+
         this.updateNTPStatus(_("Checking current FSMO roles..."), 'updating');
-        
+
         // Check if this DC holds the PDC Emulator role
         return cockpit.spawn(['samba-tool', 'fsmo', 'show'], { superuser: "try" })
             .then(output => {
                 console.log('FSMO roles output:', output);
-                
+
                 // Parse the output to see if this server holds PDC Emulator role
                 const lines = output.split('\n');
                 const pdcLine = lines.find(line => line.includes('PdcRole'));
-                
+
                 if (pdcLine) {
                     // Extract the server name that holds the PDC role
                     const match = pdcLine.match(/PdcRole owner: (.+)/);
                     if (match) {
                         const pdcOwner = match[1].trim();
-                        
+
                         this.updateNTPStatus(_("Determining server role..."), 'updating');
-                        
+
                         // Get this server's hostname
                         return cockpit.spawn(['hostname', '-f'], { superuser: "try" })
                             .then(hostname => {
                                 const thisServer = hostname.trim();
                                 console.log('PDC Emulator owner:', pdcOwner, 'This server:', thisServer);
-                                
-                                if (pdcOwner.toLowerCase().includes(thisServer.toLowerCase()) || 
+
+                                if (pdcOwner.toLowerCase().includes(thisServer.toLowerCase()) ||
                                     thisServer.toLowerCase().includes(pdcOwner.toLowerCase())) {
                                     this.updateNTPStatus(_("PDC Emulator: Adding external NTP servers to /etc/chrony/chrony.conf..."), 'updating');
                                     return this.reconfigureNTPForPDC();
@@ -3333,7 +3294,7 @@ local stratum 10
                             });
                     }
                 }
-                
+
                 this.updateNTPStatus(_("Could not determine PDC role - using external sources..."), 'updating');
                 return this.reconfigureNTPForPDC(); // Fallback
             })
@@ -3351,21 +3312,21 @@ local stratum 10
                 this.sysvolManager.readNTPConfig('settings').catch(() => null),
                 cockpit.spawn(['chrony', 'sources'], { superuser: "try" }).catch(() => '')
             ]);
-            
+
             console.log('Current NTP sources:', systemSources);
             console.log('SYSVOL NTP settings:', sysvolSettings);
-            
+
             let statusMessage = "";
-            
+
             if (sysvolSettings) {
                 // Parse SYSVOL settings
                 const roleMatch = sysvolSettings.match(/ROLE=(\w+)/);
                 const generatedMatch = sysvolSettings.match(/GENERATED=([^\n]+)/);
-                
+
                 if (roleMatch) {
                     const role = roleMatch[1];
-                    statusMessage = role === 'pdc' ? 
-                        _("PDC Emulator - External NTP sources (SYSVOL managed)") : 
+                    statusMessage = role === 'pdc' ?
+                        _("PDC Emulator - External NTP sources (SYSVOL managed)") :
                         _("Additional DC - PDC time source (SYSVOL managed)");
                     if (generatedMatch) {
                         statusMessage += ` | Updated: ${generatedMatch[1].split('T')[0]}`;
@@ -3382,7 +3343,7 @@ local stratum 10
                 }
                 statusMessage += " | Direct config";
             }
-            
+
             this.updateNTPStatus(statusMessage, '');
         } catch (error) {
             console.log('Failed to check NTP sources:', error);
@@ -3392,11 +3353,11 @@ local stratum 10
 
     updateKerberosConfig(domainName, hostname) {
         console.log('Updating Kerberos configuration for domain:', domainName);
-        
+
         const realm = domainName.toUpperCase();
         const domainLower = domainName.toLowerCase();
         const hostnameFull = hostname || `${cockpit.info.hostname}.${domainLower}`;
-        
+
         const krb5Config = `[libdefaults]
 default_realm = ${realm}
 kdc_timesync = 1
@@ -3437,14 +3398,14 @@ udp_preference_limit = 0
     handleFSMORefresh() {
         const refreshButton = document.getElementById('refresh-fsmo');
         const originalIcon = refreshButton.innerHTML;
-        
+
         // Show loading state
         refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Refreshing...");
         refreshButton.disabled = true;
-        
+
         // Load FSMO roles
         this.fsmoManager.loadFSMORoles();
-        
+
         // Reset button after 2 seconds
         setTimeout(() => {
             refreshButton.innerHTML = originalIcon;
@@ -3455,11 +3416,11 @@ udp_preference_limit = 0
     forceDomainReplication() {
         const forceReplicationBtn = document.getElementById('force-replication');
         const originalIcon = forceReplicationBtn.innerHTML;
-        
+
         // Show loading state
         forceReplicationBtn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Syncing...");
         forceReplicationBtn.disabled = true;
-        
+
         // Force domain replication using samba-tool
         cockpit.spawn(['samba-tool', 'drs', 'replicate', '--full-sync'], { superuser: "try" })
             .then(output => {
@@ -3485,7 +3446,7 @@ udp_preference_limit = 0
         // Check core services
         this.checkIndividualService('samba-ad-dc', 'samba-status');
         this.checkIndividualService('chrony', 'ntp-service-status');
-        
+
         // Check DHCP with intelligent handling
         this.checkDHCPServiceStatus();
     }
@@ -3493,21 +3454,21 @@ udp_preference_limit = 0
     checkDHCPServiceStatus() {
         const statusElement = document.getElementById('dhcp-status');
         if (!statusElement) return;
-        
+
         statusElement.textContent = _("Checking...");
         statusElement.className = 'service-status-text checking';
-        
+
         // First check if this DC should be running DHCP by checking FSMO roles
         this.shouldRunDHCP().then(shouldRun => {
             if (!shouldRun) {
                 // This DC should not run DHCP (not PDC Emulator or not primary)
                 statusElement.textContent = _("Not DHCP server");
                 statusElement.className = 'service-status-text inactive';
-                
+
                 // DHCP FSMO status element left empty (no status text needed)
                 return;
             }
-            
+
             // This DC should run DHCP, check actual service status
             this.checkIndividualService('isc-dhcp-server', 'dhcp-status');
         }).catch(error => {
@@ -3523,14 +3484,14 @@ udp_preference_limit = 0
             const output = await cockpit.spawn(['samba-tool', 'fsmo', 'show'], { superuser: "try", err: "ignore" });
             const lines = output.split('\n');
             const pdcLine = lines.find(line => line.includes('PdcEmulationMasterRole') || line.includes('PdcRole') || line.includes('PDC'));
-            
+
             if (pdcLine) {
                 try {
                     const hostname = await cockpit.spawn(['hostname', '-f'], { err: "ignore" });
                     const currentHost = hostname.trim().toLowerCase();
-                    
+
                     // Check if this host is mentioned in the PDC line
-                    return pdcLine.toLowerCase().includes(currentHost) || 
+                    return pdcLine.toLowerCase().includes(currentHost) ||
                            pdcLine.toLowerCase().includes(currentHost.split('.')[0]);
                 } catch (hostnameError) {
                     console.log('Could not get hostname for DHCP check:', hostnameError);
@@ -3545,11 +3506,11 @@ udp_preference_limit = 0
                     }
                 }
             }
-            
+
             return false; // Default to not running DHCP
         } catch (error) {
             console.log('Could not check FSMO roles for DHCP decision:', error);
-            
+
             // Fallback: Check if DHCP is actually configured and should run
             try {
                 await cockpit.file('/etc/dhcp/dhcpd.conf').read();
@@ -3566,13 +3527,13 @@ udp_preference_limit = 0
         const statusElement = document.getElementById(statusElementId);
         statusElement.textContent = _("Checking...");
         statusElement.className = 'service-status-text checking';
-        
+
         // Get detailed service status
         cockpit.spawn(['systemctl', 'status', serviceName], { superuser: "try" })
             .then(output => {
                 const lines = output.split('\n');
                 const activeLine = lines.find(line => line.includes('Active:'));
-                
+
                 if (activeLine) {
                     if (activeLine.includes('active (running)')) {
                         statusElement.textContent = _("Running");
@@ -3611,7 +3572,7 @@ udp_preference_limit = 0
                     // More descriptive error with fallback check
                     statusElement.textContent = _("Unable to check status");
                     statusElement.className = 'service-status-text warning';
-                    
+
                     // Try a simple service existence check as fallback
                     cockpit.spawn(['systemctl', 'list-unit-files', serviceName], { err: 'ignore' })
                         .then(output => {
@@ -3637,7 +3598,7 @@ udp_preference_limit = 0
         if (sambaServiceName && sambaServiceName.textContent.includes('Samba AD-DC')) {
             sambaServiceName.innerHTML = `<i class="fas fa-users"></i>${_("Domain Authentication (Winbind)")}`;
         }
-        
+
         // Update restart button tooltip
         const restartSambaBtn = document.getElementById('restart-samba');
         if (restartSambaBtn) {
@@ -3649,7 +3610,7 @@ udp_preference_limit = 0
         // For domain members, check relevant services like winbind and chrony
         this.checkIndividualService('winbind', 'samba-status');
         this.checkIndividualService('chrony', 'ntp-service-status');
-        
+
         // Update DHCP status for domain members (domain members should not run DHCP server)
         const dhcpStatus = document.getElementById('dhcp-status');
         if (dhcpStatus) {
@@ -3660,7 +3621,7 @@ udp_preference_limit = 0
 
     handleServiceRestart(serviceName) {
         let buttonId, statusElementId;
-        
+
         // Map service names to button and status element IDs
         const serviceMap = {
             'samba-ad-dc': { button: 'restart-samba', status: 'samba-status' },
@@ -3668,30 +3629,30 @@ udp_preference_limit = 0
             'chrony': { button: 'restart-ntp', status: 'ntp-service-status' },
             'isc-dhcp-server': { button: 'restart-dhcp', status: 'dhcp-status' }
         };
-        
+
         if (!serviceMap[serviceName]) {
             console.error('Unknown service:', serviceName);
             return;
         }
-        
+
         const restartButton = document.getElementById(serviceMap[serviceName].button);
         const statusElement = document.getElementById(serviceMap[serviceName].status);
         const originalIcon = restartButton.innerHTML;
-        
+
         // Show loading state
         restartButton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Restarting...");
         restartButton.disabled = true;
-        
+
         statusElement.textContent = _("Restarting...");
         statusElement.className = 'service-status-text checking';
-        
+
         cockpit.spawn(['systemctl', 'restart', serviceName], { superuser: "try" })
             .then(() => {
                 // Check status after restart
                 setTimeout(() => {
                     this.checkIndividualService(serviceName, serviceMap[serviceName].status);
                 }, 2000);
-                
+
                 // Reset button
                 setTimeout(() => {
                     restartButton.innerHTML = originalIcon;
@@ -3701,7 +3662,7 @@ udp_preference_limit = 0
             .catch(error => {
                 statusElement.textContent = _("Restart failed");
                 statusElement.className = 'service-status-text stopped';
-                
+
                 // Reset button
                 setTimeout(() => {
                     restartButton.innerHTML = originalIcon;
@@ -3714,7 +3675,7 @@ udp_preference_limit = 0
     showDhcpManagement() {
         const dhcpSection = document.getElementById('dhcp-management');
         dhcpSection.classList.remove('hidden');
-        
+
         // Load current DHCP status
         this.checkDhcpFsmoStatus();
     }
@@ -3728,30 +3689,30 @@ udp_preference_limit = 0
         const failoverElement = document.getElementById('dhcp-failover-status');
         const activeServerElement = document.getElementById('dhcp-active-server');
         const fsmoIndicator = document.getElementById('dhcp-fsmo-indicator');
-        
+
         // Return early if essential elements don't exist (simplified UI)
         if (!failoverElement) {
             return;
         }
-        
+
         // Check PDC Emulator role
         cockpit.spawn(['samba-tool', 'fsmo', 'show'], { superuser: "try" })
             .then(output => {
                 const lines = output.split('\n');
                 const pdcLine = lines.find(line => line.includes('PdcEmulationMasterRole owner:'));
-                
+
                 if (pdcLine) {
                     const pdcHolder = pdcLine.split(':')[1].trim();
                     const serverName = this.extractServerName(pdcHolder);
-                    
+
                     if (activeServerElement) {
                         activeServerElement.textContent = serverName;
                     }
-                    
+
                     // Check if this server is PDC
                     const thisServer = window.location.hostname;
                     const isPdc = pdcHolder.includes(thisServer);
-                    
+
                     if (isPdc) {
                         failoverElement.textContent = _("Active (PDC)");
                         if (fsmoIndicator) fsmoIndicator.classList.remove('hidden');
@@ -3768,19 +3729,19 @@ udp_preference_limit = 0
                 if (activeServerElement) activeServerElement.textContent = _("Error");
                 failoverElement.textContent = _("Check failed");
             });
-            
+
         // Check SYSVOL backup status
         this.checkSysvolBackup();
     }
 
     checkSysvolBackup() {
         const syncStatusElement = document.getElementById('dhcp-sync-status');
-        
+
         // Return early if element doesn't exist (simplified UI)
         if (!syncStatusElement) {
             return;
         }
-        
+
         cockpit.spawn(['ls', '-la', '/var/lib/samba/sysvol/*/dhcp-configs/'], { superuser: "try" })
             .then(output => {
                 if (output.includes('dhcpd.conf.active')) {
@@ -3797,31 +3758,31 @@ udp_preference_limit = 0
     async syncDhcpConfig() {
         const button = document.getElementById('sync-dhcp-config');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Syncing...");
         button.disabled = true;
-        
+
         try {
             // Read the DHCP configuration from SYSVOL
             const sysvolConfig = await this.sysvolManager.readDHCPConfig('active');
-            
+
             if (sysvolConfig) {
                 // Deploy configuration to local DHCP server
                 await cockpit.spawn(['tee', '/etc/dhcp/dhcpd.conf'], {
                     superuser: "try",
                     input: sysvolConfig
                 });
-                
+
                 // Test configuration syntax
                 await cockpit.spawn(['dhcpd', '-t', '-cf', '/etc/dhcp/dhcpd.conf'], {
                     superuser: "try"
                 });
-                
+
                 // Restart DHCP service to apply changes
                 await cockpit.spawn(['systemctl', 'restart', 'isc-dhcp-server'], {
                     superuser: "try"
                 });
-                
+
                 this.showSuccess(_("DHCP configuration synced from SYSVOL and applied"));
                 this.checkSysvolBackup();
             } else {
@@ -3829,7 +3790,7 @@ udp_preference_limit = 0
                 const localConfig = await cockpit.spawn(['cat', '/etc/dhcp/dhcpd.conf'], {
                     superuser: "try"
                 });
-                
+
                 await this.sysvolManager.writeDHCPConfig(localConfig, 'active');
                 this.showSuccess(_("Local DHCP configuration uploaded to SYSVOL for replication"));
             }
@@ -3860,17 +3821,17 @@ udp_preference_limit = 0
     extractServerName(dn) {
         // Try to extract server name from DN format
         // CN=NTDS Settings,CN=DEBIAN,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=guedry,DC=local
-        
+
         if (!dn || typeof dn !== 'string') {
             return dn;
         }
-        
+
         // Look for CN=servername pattern after CN=NTDS Settings
         const match = dn.match(/CN=NTDS Settings,CN=([^,]+)/);
         if (match) {
             return match[1];
         }
-        
+
         // Fallback: look for any CN= pattern that might be a server name
         const cnMatch = dn.match(/CN=([^,]+)/);
         if (cnMatch) {
@@ -3880,19 +3841,19 @@ udp_preference_limit = 0
                 return cn;
             }
         }
-        
+
         // If no pattern matches, return the full DN but truncated
         if (dn.length > 50) {
             return dn.substring(0, 47) + '...';
         }
-        
+
         return dn;
     }
 
     // DHCP Configuration Methods
     setupDhcpConfiguration(domainName, interfaceIP, interfaceInfo, customOptions = {}) {
         console.log('Setting up DHCP configuration for domain:', domainName);
-        
+
         // Check if DHCP server package is installed
         return cockpit.spawn(['dpkg', '-l', 'isc-dhcp-server'], { superuser: "try" })
             .then(() => {
@@ -3903,38 +3864,38 @@ udp_preference_limit = 0
                 throw new Error('DHCP server package (isc-dhcp-server) is not installed');
             });
     }
-    
+
     doSetupDhcpConfiguration(domainName, interfaceIP, interfaceInfo, customOptions = {}) {
         console.log('Proceeding with DHCP configuration setup...');
-        
+
         // Get actual network information from routing table and interface details
         return cockpit.spawn(['ip', 'route', 'show', 'default'], { superuser: "try" })
             .then(routeOutput => {
                 const gatewayMatch = routeOutput.match(/default via ([0-9.]+)/);
                 const actualGateway = gatewayMatch ? gatewayMatch[1] : interfaceIP.split('.').slice(0, 3).join('.') + '.254';
-                
+
                 // Extract network information from the actual IP address
                 const ipParts = interfaceIP.split('.');
                 const networkBase = ipParts.slice(0, 3).join('.');
                 const netmask = '255.255.255.0';
                 const network = networkBase + '.0';
                 const broadcast = networkBase + '.255';
-                
+
                 // Use custom DHCP range if provided, otherwise auto-detect based on actual network
                 const rangeStart = customOptions.rangeStart || `${networkBase}.100`;
                 const rangeEnd = customOptions.rangeEnd || `${networkBase}.200`;
                 const leaseTime = customOptions.leaseTime || '600';
                 const maxLeaseTime = (parseInt(leaseTime) * 12).toString(); // Max is 12x default
                 const dhcpRange = `${rangeStart} ${rangeEnd}`;
-                
+
                 // Get MAC address from interface info
                 const macAddress = interfaceInfo.mac || '08:00:27:c9:d8:89';
-                
+
                 // Validate input parameters
                 if (!domainName || !interfaceIP || !interfaceInfo) {
                     throw new Error('Missing required parameters for DHCP configuration');
                 }
-                
+
                 const dhcpConfig = `# DHCP Configuration for ${domainName}
 # Generated automatically during domain provisioning
 # Managed by cockpit-domain-controller
@@ -3970,7 +3931,7 @@ host dc-server {
     fixed-address ${interfaceIP};
 }
 `;
-                
+
                 // Store DHCP configuration in LDAP
                 const dhcpLdif = `# DHCP Configuration Object for ${domainName}
 # This stores DHCP settings in Active Directory for replication
@@ -3992,13 +3953,13 @@ dhcpLeaseTime: ${leaseTime}
 dhcpMaxLeaseTime: ${maxLeaseTime}
 whenCreated: ${new Date().toISOString()}
 `;
-                
+
                 // First create SYSVOL directories and store config there too
                 return cockpit.spawn(['mkdir', '-p', `/var/lib/samba/sysvol/${domainName}/dhcp-configs`], { superuser: "try" })
                     .then(() => {
                         // Store in SYSVOL for backwards compatibility
-                        return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`], { 
-                            superuser: "try" 
+                        return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`], {
+                            superuser: "try"
                         }).input(dhcpConfig);
                     })
                     .then(() => {
@@ -4015,14 +3976,14 @@ DHCP_LEASE_TIME=${leaseTime}
 DHCP_MAX_LEASE_TIME=${maxLeaseTime}
 DHCP_LAST_UPDATED=${new Date().toISOString()}
 `;
-                        return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-settings.conf`], { 
-                            superuser: "try" 
+                        return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-settings.conf`], {
+                            superuser: "try"
                         }).input(dhcpSettings);
                     })
                     .then(() => {
                         // Copy configuration to system location
-                        return cockpit.spawn(['cp', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`, '/etc/dhcp/dhcpd.conf'], { 
-                            superuser: "try" 
+                        return cockpit.spawn(['cp', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`, '/etc/dhcp/dhcpd.conf'], {
+                            superuser: "try"
                         });
                     })
                     .then(() => {
@@ -4048,14 +4009,14 @@ DHCP_LAST_UPDATED=${new Date().toISOString()}
 INTERFACESv4="${interfaceName}"
 INTERFACESv6=""
 `;
-                        return cockpit.spawn(['tee', '/etc/default/isc-dhcp-server'], { 
-                            superuser: "try" 
+                        return cockpit.spawn(['tee', '/etc/default/isc-dhcp-server'], {
+                            superuser: "try"
                         }).input(dhcpDefaults);
                     })
                     .then(() => {
                         // Validate DHCP configuration before starting service
-                        return cockpit.spawn(['/usr/sbin/dhcpd', '-t', '-cf', '/etc/dhcp/dhcpd.conf'], { 
-                            superuser: "try" 
+                        return cockpit.spawn(['/usr/sbin/dhcpd', '-t', '-cf', '/etc/dhcp/dhcpd.conf'], {
+                            superuser: "try"
                         }).catch(validationError => {
                             console.error('DHCP configuration validation failed:', validationError);
                             throw new Error('DHCP configuration is invalid: ' + validationError.message);
@@ -4114,7 +4075,7 @@ INTERFACESv6=""
     showDhcpEditor() {
         const modal = document.getElementById('dhcp-config-modal');
         modal.removeAttribute('hidden');
-        
+
         // Load current DHCP configuration
         this.loadDhcpConfig();
     }
@@ -4160,18 +4121,18 @@ INTERFACESv6=""
                 const lines = output.split('\n');
                 const domainLine = lines.find(line => line.includes('Domain') && line.includes(':'));
                 const actualDomain = domainLine ? domainLine.split(':')[1].trim() : 'guedry.local';
-                
+
                 // Get current network information
                 const interfaceInfo = this.networkInterfaces.find(iface => iface.name === 'enp0s3');
                 const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : '192.168.1.174';
                 const networkBase = interfaceIP.split('.').slice(0, 3).join('.');
-                
+
                 // Get actual gateway from routing table
                 return cockpit.spawn(['ip', 'route', 'show', 'default'], { superuser: "try" })
                     .then(routeOutput => {
                         const gatewayMatch = routeOutput.match(/default via ([0-9.]+)/);
                         const actualGateway = gatewayMatch ? gatewayMatch[1] : networkBase + '.254';
-                        
+
                         // Set form values with actual detected values
                         document.getElementById('dhcp-domain-name').value = actualDomain;
                         document.getElementById('dhcp-dns-servers').value = interfaceIP;
@@ -4186,12 +4147,12 @@ INTERFACESv6=""
             })
             .catch(error => {
                 console.error('Failed to get domain info, using defaults:', error);
-                
+
                 // Fallback to basic network detection
                 const interfaceInfo = this.networkInterfaces.find(iface => iface.name === 'enp0s3');
                 const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : '192.168.1.174';
                 const networkBase = interfaceIP.split('.').slice(0, 3).join('.');
-                
+
                 document.getElementById('dhcp-domain-name').value = 'guedry.local';
                 document.getElementById('dhcp-dns-servers').value = interfaceIP;
                 document.getElementById('dhcp-subnet').value = networkBase + '.0';
@@ -4207,13 +4168,13 @@ INTERFACESv6=""
     parseDhcpLdapConfig(ldapOutput) {
         // Parse DHCP configuration from LDAP output
         const lines = ldapOutput.split('\n');
-        
+
         // Extract values from LDAP attributes
         const getValue = (attr) => {
             const line = lines.find(line => line.startsWith(attr + ':'));
             return line ? line.split(':')[1].trim() : '';
         };
-        
+
         document.getElementById('dhcp-domain-name').value = getValue('dhcpDomainName');
         document.getElementById('dhcp-dns-servers').value = getValue('dhcpDnsServers');
         document.getElementById('dhcp-subnet').value = getValue('dhcpSubnet');
@@ -4228,45 +4189,45 @@ INTERFACESv6=""
     parseDhcpConfig(config) {
         // Parse existing DHCP configuration
         const lines = config.split('\n');
-        
+
         // Extract domain name
         const domainMatch = config.match(/option domain-name "([^"]+)"/);
         if (domainMatch) {
             document.getElementById('dhcp-domain-name').value = domainMatch[1];
         }
-        
+
         // Extract DNS servers
         const dnsMatch = config.match(/option domain-name-servers ([^;]+);/);
         if (dnsMatch) {
             document.getElementById('dhcp-dns-servers').value = dnsMatch[1].trim();
         }
-        
+
         // Extract subnet
         const subnetMatch = config.match(/subnet ([0-9.]+) netmask ([0-9.]+)/);
         if (subnetMatch) {
             document.getElementById('dhcp-subnet').value = subnetMatch[1];
             document.getElementById('dhcp-netmask').value = subnetMatch[2];
         }
-        
+
         // Extract range
         const rangeMatch = config.match(/range ([0-9.]+) ([0-9.]+);/);
         if (rangeMatch) {
             document.getElementById('dhcp-range-start').value = rangeMatch[1];
             document.getElementById('dhcp-range-end').value = rangeMatch[2];
         }
-        
+
         // Extract gateway
         const gatewayMatch = config.match(/option routers ([^;]+);/);
         if (gatewayMatch) {
             document.getElementById('dhcp-gateway').value = gatewayMatch[1].trim();
         }
-        
+
         // Extract lease times
         const leaseMatch = config.match(/default-lease-time ([0-9]+);/);
         if (leaseMatch) {
             document.getElementById('dhcp-lease-time').value = leaseMatch[1];
         }
-        
+
         const maxLeaseMatch = config.match(/max-lease-time ([0-9]+);/);
         if (maxLeaseMatch) {
             document.getElementById('dhcp-max-lease-time').value = maxLeaseMatch[1];
@@ -4276,10 +4237,10 @@ INTERFACESv6=""
     saveDhcpConfig() {
         const button = document.getElementById('save-dhcp-config');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Saving...");
         button.disabled = true;
-        
+
         // Get form values
         const domainName = document.getElementById('dhcp-domain-name').value.trim();
         const dnsServers = document.getElementById('dhcp-dns-servers').value.trim();
@@ -4290,7 +4251,7 @@ INTERFACESv6=""
         const gateway = document.getElementById('dhcp-gateway').value.trim();
         const leaseTime = document.getElementById('dhcp-lease-time').value.trim();
         const maxLeaseTime = document.getElementById('dhcp-max-lease-time').value.trim();
-        
+
         // Validate inputs
         if (!domainName || !dnsServers || !subnet || !netmask || !rangeStart || !rangeEnd || !gateway) {
             this.showError(_("Please fill in all required fields"));
@@ -4298,12 +4259,12 @@ INTERFACESv6=""
             button.disabled = false;
             return;
         }
-        
+
         // Generate DHCP configuration
         const interfaceInfo = this.networkInterfaces.find(iface => iface.name === 'enp0s3');
         const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : '192.168.1.174';
         const broadcast = subnet.split('.').slice(0, 3).join('.') + '.255';
-        
+
         const dhcpConfig = `# DHCP Configuration for ${domainName}
 # Generated by cockpit-domain-controller configuration editor
 # Last updated: ${new Date().toISOString()}
@@ -4338,7 +4299,7 @@ host dc-server {
     fixed-address ${interfaceIP};
 }
 `;
-        
+
         // Store DHCP configuration in LDAP
         const dhcpLdif = `# DHCP Configuration Update for ${domainName}
 dn: CN=DHCP-Config,CN=Configuration,DC=${domainName.split('.').join(',DC=')}
@@ -4380,26 +4341,26 @@ whenCreated: ${new Date().toISOString()}
         // Save configuration to SYSVOL and LDAP
         cockpit.spawn(['mkdir', '-p', `/var/lib/samba/sysvol/${domainName}/dhcp-configs`], { superuser: "try" })
             .then(() => {
-                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`], {
+                    superuser: "try"
                 }).input(dhcpConfig);
             })
             .then(() => {
                 // Save LDIF for LDAP update
-                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-config-update.ldif`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-config-update.ldif`], {
+                    superuser: "try"
                 }).input(dhcpLdif);
             })
             .then(() => {
                 // Update DHCP configuration in LDAP
-                return cockpit.spawn(['ldbmodify', '-H', `/var/lib/samba/private/sam.ldb`, `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-config-update.ldif`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['ldbmodify', '-H', `/var/lib/samba/private/sam.ldb`, `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcp-config-update.ldif`], {
+                    superuser: "try"
                 });
             })
             .then(() => {
                 // Copy to system location
-                return cockpit.spawn(['cp', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`, '/etc/dhcp/dhcpd.conf'], { 
-                    superuser: "try" 
+                return cockpit.spawn(['cp', `/var/lib/samba/sysvol/${domainName}/dhcp-configs/dhcpd.conf.active`, '/etc/dhcp/dhcpd.conf'], {
+                    superuser: "try"
                 });
             })
             .then(() => {
@@ -4425,7 +4386,7 @@ whenCreated: ${new Date().toISOString()}
     showNtpManagement() {
         const ntpSection = document.getElementById('ntp-management');
         ntpSection.classList.remove('hidden');
-        
+
         // Load current NTP status
         this.checkNtpFsmoStatus();
     }
@@ -4439,25 +4400,25 @@ whenCreated: ${new Date().toISOString()}
         const roleElement = document.getElementById('ntp-role-status');
         const stratumElement = document.getElementById('ntp-stratum');
         const syncStatusElement = document.getElementById('ntp-sync-status');
-        
+
         // Return early if elements don't exist
         if (!roleElement) {
             return;
         }
-        
+
         // Check PDC Emulator role
         cockpit.spawn(['samba-tool', 'fsmo', 'show'], { superuser: "try" })
             .then(output => {
                 const lines = output.split('\n');
                 const pdcLine = lines.find(line => line.includes('PdcEmulationMasterRole owner:'));
-                
+
                 if (pdcLine) {
                     const pdcHolder = pdcLine.split(':')[1].trim();
-                    
+
                     // Check if this server is PDC
                     const thisServer = window.location.hostname;
                     const isPdc = pdcHolder.includes(thisServer);
-                    
+
                     if (isPdc) {
                         roleElement.textContent = _("PDC Emulator");
                         roleElement.className = 'summary-value success';
@@ -4467,7 +4428,7 @@ whenCreated: ${new Date().toISOString()}
                         roleElement.className = 'summary-value';
                         if (stratumElement) stratumElement.textContent = "11";
                     }
-                    
+
                     // Check NTP synchronization status
                     this.checkNtpSyncStatus();
                 } else {
@@ -4488,7 +4449,7 @@ whenCreated: ${new Date().toISOString()}
     checkNtpSyncStatus() {
         const syncStatusElement = document.getElementById('ntp-sync-status');
         if (!syncStatusElement) return;
-        
+
         // Check chrony tracking to determine sync status
         cockpit.spawn(['chronyc', 'tracking'], { superuser: "try" })
             .then(output => {
@@ -4509,10 +4470,10 @@ whenCreated: ${new Date().toISOString()}
     syncNtpConfig() {
         const button = document.getElementById('sync-ntp-config');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Syncing...");
         button.disabled = true;
-        
+
         cockpit.spawn(['/usr/local/bin/ntp-fsmo-manager.sh'], { superuser: "try" })
             .then(() => {
                 this.showSuccess(_("NTP configuration synchronized based on FSMO role"));
@@ -4532,10 +4493,10 @@ whenCreated: ${new Date().toISOString()}
     forceNtpFailover() {
         const button = document.getElementById('force-ntp-failover');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Reconfiguring...");
         button.disabled = true;
-        
+
         cockpit.spawn(['/usr/local/bin/ntp-fsmo-manager.sh'], { superuser: "try" })
             .then(() => {
                 this.showSuccess(_("NTP hierarchy reconfigured successfully"));
@@ -4561,14 +4522,14 @@ whenCreated: ${new Date().toISOString()}
         const trackingElement = document.getElementById('ntp-tracking');
         const stratumElement = document.getElementById('ntp-stratum');
         const offsetElement = document.getElementById('ntp-offset');
-        
+
         // Return early if elements don't exist (simplified UI)
         if (!trackingElement || !stratumElement || !offsetElement) {
             return;
         }
-        
+
         trackingElement.innerHTML = '<div class="log-loading">' + _("Loading NTP status...") + '</div>';
-        
+
         // Get chrony tracking information
         cockpit.spawn(['chronyc', 'tracking'], { superuser: "try" })
             .then(output => {
@@ -4577,18 +4538,18 @@ whenCreated: ${new Date().toISOString()}
                         .replace(/\n/g, '<br>')
                         .replace(/\s{2,}/g, ' &nbsp; ');
                     trackingElement.innerHTML = '<div class="ntp-tracking-content">' + formattedOutput + '</div>';
-                    
+
                     // Parse stratum and offset
                     const stratumMatch = output.match(/Stratum\s*:\s*(\d+)/);
                     const offsetMatch = output.match(/System time\s*:\s*([+-]?\d+\.\d+)/);
-                    
+
                     if (stratumMatch) {
                         stratumElement.textContent = stratumMatch[1];
                     }
                     if (offsetMatch) {
                         const offset = parseFloat(offsetMatch[1]);
                         offsetElement.textContent = offset.toFixed(3) + ' seconds';
-                        
+
                         // Color code based on offset
                         if (Math.abs(offset) < 0.1) {
                             offsetElement.className = 'ntp-info-value success';
@@ -4613,7 +4574,7 @@ whenCreated: ${new Date().toISOString()}
     showNtpEditor() {
         const modal = document.getElementById('ntp-config-modal');
         modal.removeAttribute('hidden');
-        
+
         // Load current NTP configuration
         this.loadNtpConfig();
     }
@@ -4641,7 +4602,7 @@ whenCreated: ${new Date().toISOString()}
         const interfaceInfo = this.networkInterfaces.find(iface => iface.name === 'enp0s3');
         const interfaceIP = interfaceInfo ? interfaceInfo.ips[0] : '192.168.1.174';
         const networkBase = interfaceIP.split('.').slice(0, 3).join('.');
-        
+
         document.getElementById('ntp-external-servers').value = `pool.ntp.org
 time.nist.gov
 time.google.com
@@ -4654,33 +4615,33 @@ time.cloudflare.com`;
     parseNtpConfig(config) {
         // Parse existing NTP configuration
         const lines = config.split('\n');
-        
+
         // Extract external servers (pool/server lines)
-        const serverLines = lines.filter(line => 
-            line.trim().startsWith('pool ') || 
+        const serverLines = lines.filter(line =>
+            line.trim().startsWith('pool ') ||
             line.trim().startsWith('server ') && !line.includes('127.127.')
         );
         const servers = serverLines.map(line => {
             const match = line.match(/(?:pool|server)\s+([^\s]+)/);
             return match ? match[1] : '';
         }).filter(server => server && !server.includes('127.127.')).join('\n');
-        
+
         if (servers) {
             document.getElementById('ntp-external-servers').value = servers;
         }
-        
+
         // Extract stratum levels from local clock lines
         const pdcStratumMatch = config.match(/server 127\.127\.1\.0.*stratum (\d+)/);
         if (pdcStratumMatch) {
             document.getElementById('ntp-pdc-stratum').value = pdcStratumMatch[1];
         }
-        
+
         // Extract allow networks
         const allowMatch = config.match(/allow ([^\s\n]+)/);
         if (allowMatch) {
             document.getElementById('ntp-allow-clients').value = allowMatch[1];
         }
-        
+
         // Default DC stratum is typically PDC stratum + 1
         const pdcStratum = parseInt(document.getElementById('ntp-pdc-stratum').value) || 10;
         document.getElementById('ntp-dc-stratum').value = (pdcStratum + 1).toString();
@@ -4689,16 +4650,16 @@ time.cloudflare.com`;
     saveNtpConfig() {
         const button = document.getElementById('save-ntp-config');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ' + _("Saving...");
         button.disabled = true;
-        
+
         // Get form values
         const externalServers = document.getElementById('ntp-external-servers').value.trim();
         const pdcStratum = document.getElementById('ntp-pdc-stratum').value.trim();
         const dcStratum = document.getElementById('ntp-dc-stratum').value.trim();
         const allowClients = document.getElementById('ntp-allow-clients').value.trim();
-        
+
         // Validate inputs
         if (!externalServers || !pdcStratum || !dcStratum || !allowClients) {
             this.showError(_("Please fill in all required fields"));
@@ -4706,11 +4667,11 @@ time.cloudflare.com`;
             button.disabled = false;
             return;
         }
-        
+
         // Create NTP configuration templates for both PDC and non-PDC roles
         const domainName = 'guedry.local'; // This should be dynamically determined
         const serverList = externalServers.split('\n').filter(s => s.trim()).map(s => `pool ${s.trim()}`).join('\n');
-        
+
         const pdcConfig = `# NTP Configuration for PDC Emulator
 # Generated by cockpit-domain-controller configuration editor
 # Last updated: ${new Date().toISOString()}
@@ -4755,25 +4716,25 @@ rtcsync
 logdir /var/log/chrony
 log tracking measurements statistics
 `;
-        
+
         // Save configuration templates to SYSVOL
         cockpit.spawn(['mkdir', '-p', `/var/lib/samba/sysvol/${domainName}/ntp-configs`], { superuser: "try" })
             .then(() => {
                 // Save PDC template
-                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/chrony.conf.pdc`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/chrony.conf.pdc`], {
+                    superuser: "try"
                 }).input(pdcConfig);
             })
             .then(() => {
                 // Save DC template
-                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/chrony.conf.dc`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/chrony.conf.dc`], {
+                    superuser: "try"
                 }).input(dcConfig);
             })
             .then(() => {
                 // Save current settings
-                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/ntp-settings.conf`], { 
-                    superuser: "try" 
+                return cockpit.spawn(['tee', `/var/lib/samba/sysvol/${domainName}/ntp-configs/ntp-settings.conf`], {
+                    superuser: "try"
                 }).input(`# NTP Settings
 EXTERNAL_SERVERS="${externalServers.replace(/\n/g, ' ')}"
 PDC_STRATUM=${pdcStratum}
@@ -4810,7 +4771,7 @@ LAST_UPDATED="${new Date().toISOString()}"
             'rid-master': { element: document.getElementById('rid-master'), name: _("RID Master") },
             'infrastructure-master': { element: document.getElementById('infrastructure-master'), name: _("Infrastructure Master") }
         };
-        
+
         Object.values(roleElements).forEach(({ element }) => {
             if (element) {
                 element.textContent = _("Configuration required");
@@ -4824,39 +4785,31 @@ LAST_UPDATED="${new Date().toISOString()}"
         if (!hostname || !hostname.includes('.')) {
             return false;
         }
-        
+
         // Check if hostname ends with the domain name
         const hostnameLower = hostname.toLowerCase();
         const domainLower = domainName.toLowerCase();
-        
+
         if (!hostnameLower.endsWith('.' + domainLower)) {
             return false;
         }
-        
+
         // Basic hostname format validation
         const hostnamePattern = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
         return hostnamePattern.test(hostname);
     }
 
-    handleLogStream(data) {
-        const logOutput = document.getElementById('log-output');
-        if (logOutput) {
-            logOutput.textContent += data;
-            logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to bottom
-        }
-    }
-
     async setHostname(hostname) {
         console.log('Setting hostname to:', hostname);
-        
+
         try {
             // Set the hostname using hostnamectl with superuser try
             await cockpit.spawn(['hostnamectl', 'set-hostname', hostname], { superuser: "try" });
-            
+
             // Update /etc/hosts file
             const shortName = hostname.split('.')[0];
             const hostsEntry = `127.0.1.1 ${hostname} ${shortName}`;
-            
+
             // Read current hosts file
             let hostsContent = '';
             try {
@@ -4865,15 +4818,15 @@ LAST_UPDATED="${new Date().toISOString()}"
                 console.log('Could not read /etc/hosts, creating new entry');
                 hostsContent = '';
             }
-            
+
             // Remove any existing 127.0.1.1 entries and add the new one
             const hostsLines = hostsContent.split('\n');
             const filteredLines = hostsLines.filter(line => !line.startsWith('127.0.1.1'));
             filteredLines.push(hostsEntry);
-            
+
             // Write back to hosts file with superuser permissions
             await cockpit.file('/etc/hosts', { superuser: "try" }).replace(filteredLines.join('\n'));
-            
+
             console.log('Hostname set successfully');
             return Promise.resolve();
         } catch (error) {

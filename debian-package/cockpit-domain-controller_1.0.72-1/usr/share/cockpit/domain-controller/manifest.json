@@ -1,0 +1,31 @@
+{
+    "name": "domain-controller",
+    "version": "1.0.72",
+    "requires": {
+        "cockpit": "266"
+    },
+
+    "menu": {
+        "index": {
+            "label": "Domain Controller",
+            "order": 80,
+            "docs": [
+                {
+                    "label": "Managing Active Directory",
+                    "url": "https://wiki.samba.org/index.php/Setting_up_Samba_as_an_Active_Directory_Domain_Controller"
+                },
+                {
+                    "label": "Domain Controller Configuration",
+                    "url": "https://wiki.samba.org/index.php/Active_Directory_Domain_Controller"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["domain", "active directory", "ad", "samba", "ldap", "kerberos", "dns", "controller", "authentication", "users", "groups", "gpo", "policy"]
+                }
+            ]
+        }
+    },
+
+    "content-security-policy": "img-src 'self' data:; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'"
+}

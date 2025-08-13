@@ -67,7 +67,7 @@ discover_domain_controllers() {
         domain_name="$DOMAIN_NAME"
     fi
     local discovered_dcs=()
-    
+
     # Method 1: DNS SRV record lookup
     if command -v dig >/dev/null 2>&1; then
         local srv_records
@@ -83,7 +83,7 @@ discover_domain_controllers() {
             done <<< "$srv_records"
         fi
     fi
-    
+
     # Method 2: nslookup fallback
     if [ ${#discovered_dcs[@]} -eq 0 ] && command -v nslookup >/dev/null 2>&1; then
         local ns_output
@@ -97,7 +97,7 @@ discover_domain_controllers() {
             done <<< "$dc_names"
         fi
     fi
-    
+
     # Remove duplicates and sort
     local unique_dcs=($(printf '%s\n' "${discovered_dcs[@]}" | sort -u))
     printf '%s\n' "${unique_dcs[@]}"
@@ -106,23 +106,23 @@ discover_domain_controllers() {
 # Test basic network interface configuration
 test_network_interfaces() {
     start_test "Network Interface Configuration"
-    
+
     # Get primary network interface
     local primary_interface=$(ip route | grep default | awk '{print $5}' | head -1)
-    
+
     if [ -n "$primary_interface" ]; then
         log_info "Primary network interface: $primary_interface"
-        
+
         # Check interface status
         if ip link show "$primary_interface" | grep -q "state UP"; then
             log_info "Interface $primary_interface is UP"
-            
+
             # Get IP address
             local ip_address=$(ip addr show "$primary_interface" | grep "inet " | awk '{print $2}' | cut -d/ -f1 | head -1)
-            
+
             if [ -n "$ip_address" ]; then
                 log_info "Interface IP address: $ip_address"
-                
+
                 # Check if it's a static IP (not in common DHCP ranges)
                 if [[ ! "$ip_address" =~ ^169\.254\. ]]; then
                     log_info "IP address appears to be properly configured"
@@ -149,18 +149,18 @@ test_network_interfaces() {
 # Test DNS resolution
 test_dns_resolution() {
     start_test "DNS Resolution"
-    
+
     local domain_name=$(hostname -d)
     local this_hostname=$(hostname -f)
-    
+
     # Test 1: Resolve this server's hostname
     if nslookup "$this_hostname" >/dev/null 2>&1; then
         log_info "Successfully resolved this server: $this_hostname"
-        
+
         # Test 2: Resolve domain name
         if nslookup "$domain_name" >/dev/null 2>&1; then
             log_info "Successfully resolved domain: $domain_name"
-            
+
             # Test 3: Reverse DNS lookup
             local ip_address=$(hostname -I | awk '{print $1}')
             if nslookup "$ip_address" >/dev/null 2>&1; then
@@ -168,7 +168,7 @@ test_dns_resolution() {
             else
                 log_info "Reverse DNS lookup failed (not critical)"
             fi
-            
+
             # Test 4: SRV record resolution
             if nslookup -type=SRV "_ldap._tcp.$domain_name" >/dev/null 2>&1; then
                 log_info "SRV record resolution successful"
@@ -192,11 +192,11 @@ test_dns_resolution() {
 # Test external connectivity
 test_external_connectivity() {
     start_test "External Connectivity"
-    
+
     # Test connectivity to common external hosts
     local external_hosts=("8.8.8.8" "1.1.1.1" "google.com")
     local successful_tests=0
-    
+
     for host in "${external_hosts[@]}"; do
         if ping -c 1 -W $TIMEOUT_PING "$host" >/dev/null 2>&1; then
             log_info "Successfully reached external host: $host"
@@ -205,7 +205,7 @@ test_external_connectivity() {
             log_info "Failed to reach external host: $host"
         fi
     done
-    
+
     if [ $successful_tests -gt 0 ]; then
         log_info "External connectivity: $successful_tests/${#external_hosts[@]} hosts reachable"
         pass_test "External Connectivity"
@@ -219,7 +219,7 @@ test_external_connectivity() {
 # Test AD service ports
 test_ad_service_ports() {
     start_test "AD Service Ports"
-    
+
     local this_server=$(hostname -f)
     local ad_ports=(
         "53:DNS"
@@ -231,14 +231,14 @@ test_ad_service_ports() {
         "3268:Global Catalog"
         "3269:Global Catalog SSL"
     )
-    
+
     local open_ports=0
     local total_ports=${#ad_ports[@]}
-    
+
     for port_info in "${ad_ports[@]}"; do
         local port=$(echo "$port_info" | cut -d: -f1)
         local service=$(echo "$port_info" | cut -d: -f2)
-        
+
         if nc -z -w $TIMEOUT_TCP "$this_server" "$port" 2>/dev/null; then
             log_info "Port $port ($service) is open"
             ((open_ports++))
@@ -246,7 +246,7 @@ test_ad_service_ports() {
             log_info "Port $port ($service) is closed or filtered"
         fi
     done
-    
+
     if [ $open_ports -ge 4 ]; then
         log_info "AD service ports: $open_ports/$total_ports ports accessible"
         pass_test "AD Service Ports"
@@ -260,42 +260,42 @@ test_ad_service_ports() {
 # Test inter-DC connectivity
 test_inter_dc_connectivity() {
     start_test "Inter-DC Connectivity"
-    
+
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     if [ ${#discovered_dcs[@]} -le 1 ]; then
         log_info "Single DC environment - skipping inter-DC connectivity test"
         pass_test "Inter-DC Connectivity"
         return 0
     fi
-    
+
     log_info "Testing connectivity to ${#discovered_dcs[@]} discovered DCs"
-    
+
     local reachable_dcs=0
     local unreachable_dcs=()
-    
+
     for dc in "${discovered_dcs[@]}"; do
         if [[ "$dc" == "$this_server" ]]; then
             log_info "Skipping self: $dc"
             continue
         fi
-        
+
         # Test ping connectivity
         if ping -c 1 -W $TIMEOUT_PING "$dc" >/dev/null 2>&1; then
             log_info "DC $dc is reachable via ping"
-            
+
             # Test key AD ports
             local dc_ad_ports=("389" "445" "88")
             local dc_open_ports=0
-            
+
             for port in "${dc_ad_ports[@]}"; do
                 if nc -z -w $TIMEOUT_TCP "$dc" "$port" 2>/dev/null; then
                     ((dc_open_ports++))
                 fi
             done
-            
+
             if [ $dc_open_ports -ge 2 ]; then
                 log_info "DC $dc has $dc_open_ports/3 key AD ports accessible"
                 ((reachable_dcs++))
@@ -308,9 +308,9 @@ test_inter_dc_connectivity() {
             unreachable_dcs+=("$dc (ping)")
         fi
     done
-    
+
     local remote_dc_count=$((${#discovered_dcs[@]} - 1))
-    
+
     if [ $reachable_dcs -gt 0 ]; then
         log_info "Inter-DC connectivity: $reachable_dcs/$remote_dc_count DCs fully reachable"
         if [ ${#unreachable_dcs[@]} -gt 0 ]; then
@@ -327,25 +327,25 @@ test_inter_dc_connectivity() {
 # Test NTP connectivity
 test_ntp_connectivity() {
     start_test "NTP Connectivity"
-    
+
     # Check if chrony is running and configured
     if systemctl is-active chrony >/dev/null 2>&1; then
         log_info "Chrony service is active"
-        
+
         # Check chrony sources
         if chronyc sources >/dev/null 2>&1; then
             local source_count=$(chronyc sources 2>/dev/null | grep -c "^\^" || echo "0")
             local reachable_sources=$(chronyc sources 2>/dev/null | grep -c "\*\|\+" || echo "0")
-            
+
             log_info "NTP sources: $source_count configured, $reachable_sources reachable"
-            
+
             # Check tracking information
             if chronyc tracking >/dev/null 2>&1; then
                 local stratum=$(chronyc tracking 2>/dev/null | grep "Stratum" | awk '{print $3}')
                 local offset=$(chronyc tracking 2>/dev/null | grep "Last offset" | awk '{print $4}')
-                
+
                 log_info "Time sync status - Stratum: $stratum, Offset: $offset"
-                
+
                 if [ "$stratum" != "0" ] && [ "$stratum" != "16" ]; then
                     log_info "Time synchronization is working correctly"
                     pass_test "NTP Connectivity"
@@ -371,20 +371,20 @@ test_ntp_connectivity() {
 # Test DHCP network configuration
 test_dhcp_network() {
     start_test "DHCP Network Configuration"
-    
+
     # Check if DHCP server is configured and potentially running
     if [ -f "/etc/dhcp/dhcpd.conf" ]; then
         log_info "DHCP configuration file exists"
-        
+
         # Check for basic DHCP configuration
         if grep -q "subnet\|range" "/etc/dhcp/dhcpd.conf" 2>/dev/null; then
             local subnet_count=$(grep -c "subnet" "/etc/dhcp/dhcpd.conf" 2>/dev/null || echo "0")
             log_info "DHCP configured with $subnet_count subnet(s)"
-            
+
             # Check DHCP service status
             local dhcp_status=$(systemctl is-active isc-dhcp-server 2>/dev/null || echo "inactive")
             log_info "DHCP service status: $dhcp_status"
-            
+
             if [ "$dhcp_status" = "active" ]; then
                 # Test DHCP port accessibility
                 if nc -z -u -w $TIMEOUT_TCP localhost 67 2>/dev/null; then
@@ -393,7 +393,7 @@ test_dhcp_network() {
                     log_info "DHCP port 67 not accessible (may be normal)"
                 fi
             fi
-            
+
             pass_test "DHCP Network Configuration"
             return 0
         else
@@ -410,40 +410,40 @@ test_dhcp_network() {
 # Test network latency to other DCs
 test_network_latency() {
     start_test "Network Latency"
-    
+
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    
+
     if [ ${#discovered_dcs[@]} -le 1 ]; then
         log_info "Single DC environment - skipping latency test"
         pass_test "Network Latency"
         return 0
     fi
-    
+
     local total_latency=0
     local tested_dcs=0
     local high_latency_dcs=()
-    
+
     for dc in "${discovered_dcs[@]}"; do
         if [[ "$dc" == "$this_server" ]]; then
             continue
         fi
-        
+
         # Ping with multiple packets to get average
         local ping_result
         if ping_result=$(ping -c 3 -W $TIMEOUT_PING "$dc" 2>/dev/null); then
             local avg_latency=$(echo "$ping_result" | grep "rtt min/avg/max" | cut -d'/' -f5)
-            
+
             if [ -n "$avg_latency" ]; then
                 log_info "Latency to $dc: ${avg_latency}ms"
-                
+
                 # Check if latency is reasonable for AD (< 100ms is good, < 500ms acceptable)
                 local latency_int=$(echo "$avg_latency" | cut -d'.' -f1)
                 if [ "$latency_int" -gt 500 ]; then
                     high_latency_dcs+=("$dc:${avg_latency}ms")
                 fi
-                
+
                 total_latency=$(echo "$total_latency + $avg_latency" | bc 2>/dev/null || echo "$total_latency")
                 ((tested_dcs++))
             fi
@@ -451,12 +451,12 @@ test_network_latency() {
             log_info "Cannot measure latency to $dc (unreachable)"
         fi
     done
-    
+
     if [ $tested_dcs -gt 0 ]; then
         if [ ${#high_latency_dcs[@]} -gt 0 ]; then
             log_info "High latency DCs detected: ${high_latency_dcs[*]}"
         fi
-        
+
         log_info "Network latency test completed for $tested_dcs DCs"
         pass_test "Network Latency"
         return 0
@@ -470,39 +470,39 @@ test_network_latency() {
 # Test firewall configuration
 test_firewall_configuration() {
     start_test "Firewall Configuration"
-    
+
     # Check if firewalld is running
     if systemctl is-active firewalld >/dev/null 2>&1; then
         log_info "Firewalld is active"
-        
+
         # Check current zone
         local active_zone=$(firewall-cmd --get-active-zones 2>/dev/null | head -1)
         log_info "Active firewall zone: $active_zone"
-        
+
         # Check for AD-related services/ports
         local ad_services=("samba" "dns" "ldap" "kerberos")
         local allowed_services=0
-        
+
         for service in "${ad_services[@]}"; do
             if firewall-cmd --list-services 2>/dev/null | grep -q "$service"; then
                 log_info "Firewall allows $service service"
                 ((allowed_services++))
             fi
         done
-        
+
         # Check for specific ports
         local ad_ports=("53/tcp" "53/udp" "88/tcp" "389/tcp" "445/tcp")
         local allowed_ports=0
-        
+
         for port in "${ad_ports[@]}"; do
             if firewall-cmd --list-ports 2>/dev/null | grep -q "$port"; then
                 log_info "Firewall allows port $port"
                 ((allowed_ports++))
             fi
         done
-        
+
         local total_allowed=$((allowed_services + allowed_ports))
-        
+
         if [ $total_allowed -gt 0 ]; then
             log_info "Firewall configuration: $allowed_services services + $allowed_ports ports allowed"
             pass_test "Firewall Configuration"
@@ -543,13 +543,13 @@ Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%
 Network Configuration Analysis:
 ===============================
 EOF
-    
+
     # Add network interface information
     local primary_interface=$(ip route | grep default | awk '{print $5}' | head -1)
     if [ -n "$primary_interface" ]; then
         local ip_address=$(ip addr show "$primary_interface" | grep "inet " | awk '{print $2}' | cut -d/ -f1 | head -1)
         local interface_status=$(ip link show "$primary_interface" | grep -o "state [A-Z]*" | awk '{print $2}')
-        
+
         cat >> "$report_file" << EOF
 Primary Interface: $primary_interface
 Interface Status: $interface_status
@@ -558,7 +558,7 @@ Gateway: $(ip route | grep default | awk '{print $3}' | head -1)
 
 EOF
     fi
-    
+
     # Add DNS configuration
     echo "DNS Configuration:" >> "$report_file"
     if [ -f "/etc/resolv.conf" ]; then
@@ -570,13 +570,13 @@ EOF
         echo "DNS configuration file not found" >> "$report_file"
     fi
     echo "" >> "$report_file"
-    
+
     # Add discovered DCs
     echo "Discovered Domain Controllers:" >> "$report_file"
     echo "=============================" >> "$report_file"
     local discovered_dcs
     mapfile -t discovered_dcs < <(discover_domain_controllers)
-    
+
     local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
     for dc in "${discovered_dcs[@]}"; do
         if [[ "$dc" == "$this_server" ]]; then
@@ -588,17 +588,17 @@ EOF
         fi
     done
     echo "" >> "$report_file"
-    
+
     # Add service port status
     echo "AD Service Port Status:" >> "$report_file"
     echo "======================" >> "$report_file"
     local this_server_fqdn=$(hostname -f)
     local ad_ports=("53:DNS" "88:Kerberos" "389:LDAP" "445:SMB" "636:LDAPS" "3268:GC")
-    
+
     for port_info in "${ad_ports[@]}"; do
         local port=$(echo "$port_info" | cut -d: -f1)
         local service=$(echo "$port_info" | cut -d: -f2)
-        
+
         if nc -z -w $TIMEOUT_TCP "$this_server_fqdn" "$port" 2>/dev/null; then
             echo "  ✅ Port $port ($service): Open" >> "$report_file"
         else
@@ -606,11 +606,11 @@ EOF
         fi
     done
     echo "" >> "$report_file"
-    
+
     echo "Detailed Test Log:" >> "$report_file"
     echo "==================" >> "$report_file"
     cat "$TEST_LOG" >> "$report_file"
-    
+
     echo "Network connectivity test report saved to: $report_file"
     log_info "Network connectivity test report generated: $report_file"
 }
@@ -620,10 +620,10 @@ main() {
     log_info "Starting Network Connectivity Testing"
     echo "Network Connectivity Test Suite"
     echo "================================"
-    
+
     # Initialize test log
     echo "Network Connectivity Test Log - $(date)" > "$TEST_LOG"
-    
+
     # Run all tests
     test_network_interfaces
     test_dns_resolution
@@ -634,7 +634,7 @@ main() {
     test_dhcp_network
     test_network_latency
     test_firewall_configuration
-    
+
     # Generate summary
     echo ""
     echo "Test Summary:"
@@ -643,10 +643,10 @@ main() {
     echo "Passed: $TESTS_PASSED"
     echo "Failed: $TESTS_FAILED"
     echo "Success Rate: $(( TESTS_PASSED * 100 / TESTS_RUN ))%"
-    
+
     # Generate detailed report
     generate_network_report
-    
+
     # Exit with appropriate code
     if [ $TESTS_FAILED -eq 0 ]; then
         log_info "All network connectivity tests passed successfully"
