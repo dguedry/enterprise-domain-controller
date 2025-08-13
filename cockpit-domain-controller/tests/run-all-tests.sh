@@ -320,7 +320,7 @@ $(get_service_status_summary)
 Network Configuration:
   Primary Interface: $(ip route | grep default | awk '{print $5}' | head -1)
   IP Address: $(hostname -I | awk '{print $1}')
-  Domain: $(hostname -d)
+  Domain: $DOMAIN_NAME
 EOF
 }
 
@@ -354,10 +354,12 @@ get_service_status_summary() {
 
 # Discover domain controllers (simplified version)
 discover_domain_controllers() {
+
     local domain_name=$(hostname -d)
     if [ -z "$domain_name" ]; then
         domain_name="$DOMAIN_NAME"
     fi
+
     local discovered_dcs=()
     
     if command -v dig >/dev/null 2>&1; then
