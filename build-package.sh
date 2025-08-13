@@ -950,6 +950,25 @@ if [ ! -f "$SOURCE_DIR/manifest.json" ]; then
     exit 1
 fi
 
+# Auto-increment build number in manifest.json
+MANIFEST_FILE="$SOURCE_DIR/manifest.json"
+if [ -f "$MANIFEST_FILE" ]; then
+    print_status "Auto-incrementing build number in manifest.json..."
+
+    # Read current version
+    VERSION=$(grep '"version"' "$MANIFEST_FILE" | sed 's/.*"version": "\([^"]*\)".*/\1/')
+
+    # Increment the patch version number
+    NEW_VERSION=$(echo "$VERSION" | awk -F. -v OFS=. '{$NF = $NF + 1;} 1')
+
+    # Update the manifest.json file
+    sed -i "s/\"version\": \"$VERSION\"/\"version\": \"$NEW_VERSION\"/" "$MANIFEST_FILE"
+
+    print_success "Version incremented from $VERSION to $NEW_VERSION"
+else
+    print_warning "manifest.json not found, skipping version increment."
+fi
+
 # Get current version from manifest.json
 CURRENT_VERSION=$(grep '"version"' "$SOURCE_DIR/manifest.json" | sed 's/.*"version": "\([^"]*\)".*/\1/')
 if [ -z "$CURRENT_VERSION" ]; then

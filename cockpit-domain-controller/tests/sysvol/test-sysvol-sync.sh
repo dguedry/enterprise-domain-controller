@@ -61,9 +61,6 @@ fail_test() {
 # Discover other domain controllers
 discover_domain_controllers() {
     local domain_name=$(hostname -d)
-    if [ -z "$domain_name" ]; then
-        domain_name="$DOMAIN_NAME"
-    fi
     local discovered_dcs=()
     
     # Method 1: DNS SRV record lookup
@@ -200,7 +197,7 @@ create_test_marker() {
     
     # Create test markers directory if it doesn't exist
     if [ ! -d "$TEST_MARKER_DIR" ]; then
-        mkdir -p "$TEST_MARKER_DIR" 2>/dev/null || mkdir -p "$TEST_MARKER_DIR"
+        mkdir -p "$TEST_MARKER_DIR" 2>/dev/null || sudo mkdir -p "$TEST_MARKER_DIR"
     fi
     
     # Create marker file with timestamp and server info
@@ -275,8 +272,8 @@ test_sysvol_write_access() {
         fi
     else
         # Try with sudo
-        if sh -c "echo 'Write test' > '$test_file'" 2>/dev/null; then
-            rm -f "$test_file" 2>/dev/null
+        if sudo sh -c "echo 'Write test' > '$test_file'" 2>/dev/null; then
+            sudo rm -f "$test_file" 2>/dev/null
             log_info "SYSVOL write access confirmed (with sudo)"
             pass_test "SYSVOL Write Access"
             return 0
@@ -296,7 +293,7 @@ test_priority_sync() {
     
     if [ ! -f "$priorities_file" ]; then
         # Initialize priorities
-        /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
+        sudo /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
     fi
     
     if [ -f "$priorities_file" ]; then
@@ -363,7 +360,7 @@ test_fsmo_status_sync() {
             fi
         else
             log_info "FSMO status file is old (${age}s), triggering update"
-            /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1 || true
+            sudo /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1 || true
             pass_test "FSMO Status Sync"
             return 0
         fi
@@ -457,12 +454,7 @@ test_sysvol_cleanup() {
 
 # Generate comprehensive SYSVOL report
 generate_sysvol_report() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local reports_dir="$(cd "$script_dir/../reports" && pwd)"
-    local report_file="$reports_dir/sysvol-sync-test-$(date +%Y%m%d-%H%M%S).txt"
-
-    # Ensure the reports directory exists
-    mkdir -p "$reports_dir"
+    local report_file="/home/dguedry/Documents/ad-server/cockpit-domain-controller/tests/reports/sysvol-sync-test-$(date +%Y%m%d-%H%M%S).txt"
 
     cat > "$report_file" << EOF
 SYSVOL Synchronization Test Report

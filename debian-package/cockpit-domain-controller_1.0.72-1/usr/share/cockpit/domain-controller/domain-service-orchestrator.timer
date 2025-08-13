@@ -1,0 +1,17 @@
+[Unit]
+Description=Domain Service Orchestrator Timer
+Documentation=man:domain-service-orchestrator(8)
+Requires=domain-service-orchestrator.service
+
+[Timer]
+# Run every 5 minutes to check for changes in FSMO roles or PDC availability
+OnCalendar=*:0/5
+# Run on startup
+OnBootSec=2min
+# Persistent across reboots
+Persistent=true
+# Randomize start time by up to 30 seconds to prevent thundering herd
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target
