@@ -480,4 +480,29 @@ export class UIManager {
             element.textContent = `Last updated: ${now.toLocaleString()}`;
         }
     }
+
+    /**
+     * Show the log streaming modal
+     */
+    showLogModal(title = "Log Output") {
+        const modal = document.getElementById('log-streaming-modal');
+        const modalTitle = document.getElementById('log-streaming-modal-title');
+        const logOutput = document.getElementById('log-output');
+
+        if (modal && modalTitle && logOutput) {
+            modalTitle.textContent = _(title);
+            logOutput.textContent = ''; // Clear previous logs
+            modal.removeAttribute('hidden');
+        }
+    }
+
+    /**
+     * Hide the log streaming modal
+     */
+    hideLogModal() {
+        const modal = document.getElementById('log-streaming-modal');
+        if (modal) {
+            modal.setAttribute('hidden', '');
+        }
+    }
 }

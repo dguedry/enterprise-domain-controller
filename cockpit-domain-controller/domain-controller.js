@@ -1122,6 +1122,27 @@ time.cloudflare.com"></textarea>
                     </div>
                 </div>
             </div>
+
+            <!-- Log Streaming Modal -->
+            <div class="pf-v5-c-backdrop" id="log-streaming-modal" hidden>
+                <div class="pf-v5-l-bullseye">
+                    <div class="pf-v5-c-modal-box pf-m-lg" role="dialog" aria-modal="true" aria-labelledby="log-streaming-modal-title">
+                        <header class="pf-v5-c-modal-box__header">
+                            <h1 class="pf-v5-c-modal-box__title" id="log-streaming-modal-title">
+                                ${_("Real-time Log Output")}
+                            </h1>
+                            <div class="pf-v5-c-modal-box__header-actions">
+                                <button id="close-log-streaming-modal" class="pf-v5-c-button pf-m-plain" type="button" aria-label="Close">
+                                    <i class="pf-v5-pficon pf-v5-pficon-close" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </header>
+                        <div class="pf-v5-c-modal-box__body" id="log-streaming-modal-body">
+                            <pre id="log-output" class="log-output-container"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
 
         this.bindEvents();
@@ -1237,7 +1258,8 @@ time.cloudflare.com"></textarea>
         // Modal backdrop click handlers
         const ntpModal = document.getElementById('ntp-config-modal');
         const dhcpModal = document.getElementById('dhcp-config-modal');
-        
+        const logStreamingModal = document.getElementById('log-streaming-modal');
+
         ntpModal.addEventListener('click', (e) => {
             if (e.target === ntpModal) {
                 this.hideNtpEditor();
@@ -1249,6 +1271,17 @@ time.cloudflare.com"></textarea>
                 this.hideDhcpEditor();
             }
         });
+
+        logStreamingModal.addEventListener('click', (e) => {
+            if (e.target === logStreamingModal) {
+                this.uiManager.hideLogModal();
+            }
+        });
+
+        const closeLogStreamingModalBtn = document.getElementById('close-log-streaming-modal');
+        if (closeLogStreamingModalBtn) {
+            closeLogStreamingModalBtn.addEventListener('click', () => this.uiManager.hideLogModal());
+        }
         
         // Auto-generate NetBIOS name from domain name
         const domainNameInput = document.getElementById('domain-name-input');
@@ -1931,7 +1964,10 @@ time.cloudflare.com"></textarea>
         cockpit.spawn(['rm', '-f', '/etc/samba/smb.conf'], { superuser: "try" })
             .then(() => {
                 // Now run the provision command
-                return cockpit.spawn(command, { superuser: "try" });
+                this.uiManager.showLogModal("Provisioning domain...");
+                const proc = cockpit.spawn(command, { superuser: "try" });
+                proc.stream(data => this.handleLogStream(data));
+                return proc;
             })
             .then(output => {
                 console.log('Provision output:', output);
@@ -2181,7 +2217,10 @@ time.cloudflare.com"></textarea>
                 console.log('DNS configured to use domain controller:', domainControllerIP);
                 console.log('Join command:', command.join(' '));
                 // Now run the join command
-                return cockpit.spawn(command, { superuser: "try" });
+                this.uiManager.showLogModal("Joining domain...");
+                const proc = cockpit.spawn(command, { superuser: "try" });
+                proc.stream(data => this.handleLogStream(data));
+                return proc;
             })
             .then(output => {
                 console.log('Domain join successful, enabling and starting samba-ad-dc...');
@@ -4824,6 +4863,14 @@ LAST_UPDATED="${new Date().toISOString()}"
         // Basic hostname format validation
         const hostnamePattern = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
         return hostnamePattern.test(hostname);
+    }
+
+    handleLogStream(data) {
+        const logOutput = document.getElementById('log-output');
+        if (logOutput) {
+            logOutput.textContent += data;
+            logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to bottom
+        }
     }
 
     async setHostname(hostname) {

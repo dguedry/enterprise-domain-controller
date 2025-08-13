@@ -61,7 +61,7 @@ fail_test() {
 
 # Discover domain controllers using multiple methods
 discover_domain_controllers() {
-    local domain_name=$(hostname -d)
+    local domain_name=$DOMAIN_NAME
     local discovered_dcs=()
     
     log_info "Discovering domain controllers for domain: $domain_name"
