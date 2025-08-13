@@ -5,14 +5,14 @@
 
 echo "DEBUG: Script starting with $# arguments: $*" >&2
 
-set -ex
+set -e
 
 SCRIPT_NAME="run-all-tests"
 LOG_TAG="$SCRIPT_NAME"
 MASTER_LOG="/tmp/dc-comprehensive-test.log"
 
 # Test configuration
-TEST_BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEST_BASE_DIR="cockpit-domain-controller/tests"
 REPORTS_DIR="$TEST_BASE_DIR/reports"
 DOMAIN_NAME=$(find /var/lib/samba/sysvol/ -maxdepth 1 -type d -name "*.local" 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "guedry.local")
 
@@ -121,11 +121,11 @@ run_test_suite() {
         
         # Run the test suite
         if $VERBOSE; then
-            "$suite_script" --verbose
-            local exit_code=$?
+            "$suite_script" --verbose 2>&1 | tee "$suite_log"
+            local exit_code=${PIPESTATUS[0]}
         else
-            "$suite_script"
-            local exit_code=$?
+            "$suite_script" 2>&1 | tee "$suite_log"
+            local exit_code=${PIPESTATUS[0]}
         fi
         
         local end_time=$(date +%s)
@@ -141,8 +141,15 @@ run_test_suite() {
             ((FAILED_SUITES++))
         fi
         
-        # Since we are no longer using tee, we can't capture the sub-script's log this way.
-        # The sub-scripts create their own logs in /tmp/, which is sufficient for debugging.
+        # Append suite log to master log
+        echo "" >> "$MASTER_LOG"
+        echo "Test Suite: $suite_name (Exit Code: $exit_code, Duration: ${duration}s)" >> "$MASTER_LOG"
+        echo "================================================================" >> "$MASTER_LOG"
+        cat "$suite_log" >> "$MASTER_LOG"
+        echo "" >> "$MASTER_LOG"
+
+        # Clean up temporary log
+        rm -f "$suite_log"
         
     else
         log_error "Test suite script not found or not executable: $suite_script"
@@ -354,12 +361,7 @@ get_service_status_summary() {
 
 # Discover domain controllers (simplified version)
 discover_domain_controllers() {
-
-    local domain_name=$(hostname -d)
-    if [ -z "$domain_name" ]; then
-        domain_name="$DOMAIN_NAME"
-    fi
-
+    local domain_name=$DOMAIN_NAME
     local discovered_dcs=()
     
     if command -v dig >/dev/null 2>&1; then
@@ -702,8 +704,40 @@ main() {
     echo ""
     echo "Test reports saved in: $REPORTS_DIR"
     
-    # The interactive prompts have been removed to allow for non-interactive execution.
-    # Reports are still generated in the reports directory.
+    # Ask user if they want to view the detailed report
+    echo ""
+    if [ -f "$MASTER_LOG" ]; then
+        read -p "Would you like to view the detailed test report? (y/N): " -n 1 -r view_report
+        echo ""
+        if [[ $view_report =~ ^[Yy]$ ]]; then
+            echo "Opening detailed test report..."
+            if command -v less >/dev/null 2>&1; then
+                less "$MASTER_LOG"
+            elif command -v more >/dev/null 2>&1; then
+                more "$MASTER_LOG"
+            else
+                cat "$MASTER_LOG"
+            fi
+        fi
+
+        # Offer to view HTML report if generated
+        local html_report="$REPORTS_DIR/comprehensive-test-report-$(date +%Y%m%d-%H%M%S).html"
+        if [ -f "$html_report" ]; then
+            read -p "Would you like to open the HTML report in your browser? (y/N): " -n 1 -r view_html
+            echo ""
+            if [[ $view_html =~ ^[Yy]$ ]]; then
+                if command -v xdg-open >/dev/null 2>&1; then
+                    xdg-open "$html_report"
+                elif command -v firefox >/dev/null 2>&1; then
+                    firefox "$html_report" &
+                elif command -v chromium-browser >/dev/null 2>&1; then
+                    chromium-browser "$html_report" &
+                else
+                    echo "HTML report available at: $html_report"
+                fi
+            fi
+        fi
+    fi
     
     # Exit with appropriate code
     if [ $FAILED_SUITES -eq 0 ]; then

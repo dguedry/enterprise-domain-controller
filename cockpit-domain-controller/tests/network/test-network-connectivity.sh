@@ -63,9 +63,6 @@ fail_test() {
 # Discover domain controllers
 discover_domain_controllers() {
     local domain_name=$(hostname -d)
-    if [ -z "$domain_name" ]; then
-        domain_name="$DOMAIN_NAME"
-    fi
     local discovered_dcs=()
     
     # Method 1: DNS SRV record lookup
@@ -520,12 +517,7 @@ test_firewall_configuration() {
 
 # Generate network connectivity report
 generate_network_report() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local reports_dir="$(cd "$script_dir/../reports" && pwd)"
-    local report_file="$reports_dir/network-connectivity-test-$(date +%Y%m%d-%H%M%S).txt"
-
-    # Ensure the reports directory exists
-    mkdir -p "$reports_dir"
+    local report_file="/home/dguedry/Documents/ad-server/cockpit-domain-controller/tests/reports/network-connectivity-test-$(date +%Y%m%d-%H%M%S).txt"
 
     cat > "$report_file" << EOF
 Network Connectivity Test Report

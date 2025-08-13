@@ -340,16 +340,15 @@ The system implements Microsoft Active Directory best practices for service mana
 ```
 cockpit-domain-controller/
 ├── manifest.json                 # Cockpit module manifest
-├── index.html                    # Main HTML interface entry point
-├── domain-controller.js          # Main frontend JavaScript logic
+├── domain-controller.html        # Main HTML interface
+├── domain-controller.js          # Frontend JavaScript logic
 ├── domain-controller.css         # Styling and theme support
-├── modules/                      # Directory for frontend JS modules
-│   ├── ui-manager.js
-│   ├── network-manager.js
-│   └── ...
-├── fsmo-orchestrator.sh          # Unified script for all FSMO and service orchestration
-├── fsmo-orchestrator.service     # Systemd service for the orchestrator
-├── fsmo-orchestrator.timer       # Systemd timer to run the orchestrator periodically
+├── dhcp-fsmo-manager.sh          # DHCP failover management script
+├── dhcp-fsmo-monitor.service     # DHCP monitoring systemd service
+├── dhcp-fsmo-monitor.timer       # DHCP monitoring timer
+├── ntp-fsmo-manager.sh           # NTP hierarchy management script
+├── ntp-fsmo-monitor.service      # NTP monitoring systemd service
+├── ntp-fsmo-monitor.timer        # NTP monitoring timer
 └── README.md                     # This documentation
 ```
 

@@ -65,7 +65,7 @@ fail_test() {
 # Get current FSMO role holders
 get_fsmo_roles() {
     local fsmo_output
-    fsmo_output=$(samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
+    fsmo_output=$(sudo samba-tool fsmo show 2>/dev/null || echo "FSMO_QUERY_FAILED")
     
     if [ "$fsmo_output" = "FSMO_QUERY_FAILED" ]; then
         return 1
@@ -269,7 +269,7 @@ test_service_orchestration() {
     start_test "Service Orchestration"
     
     # Test orchestrator execution
-    if /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
+    if sudo /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
         log_info "FSMO orchestrator executed successfully"
         
         # Wait a moment for services to settle
@@ -331,7 +331,7 @@ test_sysvol_service_config() {
         else
             log_info "No service configuration files found - may need initialization"
             # Try to initialize
-            if /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1; then
+            if sudo /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1; then
                 log_info "SYSVOL configuration initialized"
                 pass_test "SYSVOL Service Configuration Storage"
                 return 0
@@ -430,7 +430,7 @@ test_failover_simulation() {
     log_info "This server PDC status: $IS_PDC"
     
     # Simulate orchestration trigger
-    if /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
+    if sudo /usr/local/bin/fsmo-orchestrator.sh --orchestrate-only >/dev/null 2>&1; then
         log_info "Orchestration completed"
         
         # Check final service states
@@ -469,12 +469,7 @@ test_failover_simulation() {
 
 # Generate service failover test report
 generate_service_report() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local reports_dir="$(cd "$script_dir/../reports" && pwd)"
-    local report_file="$reports_dir/service-failover-test-$(date +%Y%m%d-%H%M%S).txt"
-
-    # Ensure the reports directory exists
-    mkdir -p "$reports_dir"
+    local report_file="/home/dguedry/Documents/ad-server/cockpit-domain-controller/tests/reports/service-failover-test-$(date +%Y%m%d-%H%M%S).txt"
 
     cat > "$report_file" << EOF
 Service Failover Test Report

@@ -2,7 +2,7 @@
 # Multi-DC Coordination Testing Script
 # Tests priority-based coordination, seizure locks, and anti-race condition mechanisms
 
-set -ex
+set -e
 
 SCRIPT_NAME="test-multi-dc-coordination"
 LOG_TAG="$SCRIPT_NAME"
@@ -61,12 +61,7 @@ fail_test() {
 
 # Discover domain controllers using multiple methods
 discover_domain_controllers() {
-
-    local domain_name=$(hostname -d)
-    if [ -z "$domain_name" ]; then
-        domain_name="$DOMAIN_NAME"
-    fi
-
+    local domain_name=$DOMAIN_NAME
     local discovered_dcs=()
     
     log_info "Discovering domain controllers for domain: $domain_name"
@@ -90,7 +85,7 @@ discover_domain_controllers() {
     # Method 2: Query AD for domain controllers
     if command -v samba-tool >/dev/null 2>&1; then
         local dc_list
-        if dc_list=$(samba-tool computer list --filter="(userAccountControl:1.2.840.113556.1.4.803:=8192)" 2>/dev/null); then
+        if dc_list=$(sudo samba-tool computer list --filter="(userAccountControl:1.2.840.113556.1.4.803:=8192)" 2>/dev/null); then
             while IFS= read -r dc_line; do
                 if [[ -n "$dc_line" && "$dc_line" != *"$"* ]]; then
                     local dc_name=$(echo "$dc_line" | tr '[:upper:]' '[:lower:]' | sed 's/\$$//g')
@@ -200,7 +195,7 @@ test_priority_initialization() {
     start_test "Priority Configuration Initialization"
     
     # Initialize FSMO orchestrator configuration
-    if /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1; then
+    if sudo /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1; then
         if [ -f "$DOMAIN_PRIORITIES_FILE" ]; then
             local this_server=$(hostname -s | tr '[:upper:]' '[:lower:]')
             
@@ -399,7 +394,7 @@ test_orchestrator_coordination() {
     start_test "Orchestrator Coordination Features"
     
     # Test multi-DC status query
-    if /usr/local/bin/fsmo-orchestrator.sh --multi-dc-status >/dev/null 2>&1; then
+    if sudo /usr/local/bin/fsmo-orchestrator.sh --multi-dc-status >/dev/null 2>&1; then
         log_info "Multi-DC status query successful"
         
         # Test priority-based coordination simulation
@@ -442,7 +437,7 @@ test_stale_entry_cleanup() {
             log_info "Created test stale entry: $test_dc"
             
             # Run orchestrator to trigger cleanup (it should clean entries older than 24h)
-            /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
+            sudo /usr/local/bin/fsmo-orchestrator.sh --init >/dev/null 2>&1 || true
             
             # Check if stale entry was cleaned up
             if ! grep -q "^${test_dc}:" "$DOMAIN_PRIORITIES_FILE" 2>/dev/null; then
@@ -519,12 +514,7 @@ test_race_condition_prevention() {
 
 # Generate coordination test report
 generate_coordination_report() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local reports_dir="$(cd "$script_dir/../reports" && pwd)"
-    local report_file="$reports_dir/multi-dc-coordination-test-$(date +%Y%m%d-%H%M%S).txt"
-
-    # Ensure the reports directory exists
-    mkdir -p "$reports_dir"
+    local report_file="/home/dguedry/Documents/ad-server/cockpit-domain-controller/tests/reports/multi-dc-coordination-test-$(date +%Y%m%d-%H%M%S).txt"
 
     cat > "$report_file" << EOF
 Multi-DC Coordination Test Report
